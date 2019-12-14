@@ -1,0 +1,132 @@
+#!/usr/bin/env bash
+
+# Copyright 2019 Antrea Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+AZURE_CLI="az"
+TERRAFORM="terraform"
+KUBECTL="kubectl"
+RUN_PATH="$HOME/tmp/terraform-aks"
+CONFIG_PATH=$(dirname $(readlink -f "$0"))/terraform/aks
+CMD_ARRAY=($AZURE_CLI $TERRAFORM $KUBECTL pv bzip2 jq)
+ENV_ARRAY=(TF_VAR_aks_client_id TF_VAR_aks_client_secret TF_VAR_aks_resource_group_name)
+
+
+_usage="Usage: $0 : create aks cluster
+                [destroy] : destroy aks cluster
+                [kubectl] : access aks
+                [load] : load image to aks cluster
+                [--help|h]"
+
+function print_help {
+    echo "Try '$0 --help' for more information."
+}
+
+function print_usage {
+    echo "$_usage"
+}
+
+function validate {
+  for cmd in ${CMD_ARRAY[@]}; do
+     which $cmd > /dev/null 2>&1
+     if [ $? -ne 0 ]; then
+       echo $cmd not found, please install first
+       exit 1
+     fi
+  done
+
+  for env in ${ENV_ARRAY[@]}; do
+     printenv $env > /dev/null 2>&1
+     if [ $? -ne 0 ]; then
+       echo required enviroment variable $env is not set.
+       exit 1
+     fi
+  done
+  # NodePublicIP is preview feature, register explicitely
+  $AZURE_CLI feature register --namespace "Microsoft.ContainerService" --name "NodePublicIPPreview"
+  $AZURE_CLI provider register -n Microsoft.ContainerService
+}
+
+function apply {
+  validate
+  mkdir -p $RUN_PATH
+  if [ $? -ne 0 ]; then
+     echo $RUN_PATH cannot be created
+     exit 1
+  fi
+  cp $CONFIG_PATH/* $RUN_PATH
+
+  cd $RUN_PATH
+  $TERRAFORM init
+  if [ $? -ne 0 ]; then
+     exit 1
+  fi
+  echo "yes" | $TERRAFORM apply
+  if [[ $? -ne 0 ]]; then
+    echo "aks creation failed"
+    exit 1
+  fi
+  echo aks cluster created.
+  $TERRAFORM output kube_config > $RUN_PATH/kubeconfig
+  echo run aks kubectl ... to acess it.
+}
+
+function destroy {
+  if [ ! -d $RUN_PATH ]; then
+    exit 0
+  fi
+  cd $RUN_PATH
+  echo "yes" | $TERRAFORM destroy
+}
+
+function load {
+  image=$1
+  nodes=$(KUBECONFIG=$RUN_PATH/kubeconfig kubectl get nodes -o json | jq -r '.items[] | .status | .addresses[] | select(.type == "ExternalIP") |.address')
+  for node in $(echo $nodes); do
+    echo load $image to $node
+    docker save $image | bzip2 |pv| ssh  -oStrictHostKeyChecking=no azureuser@$node 'docker load'
+  done
+}
+
+while [[ $# -gt 0 ]]
+do
+key="$1"
+
+case $key in
+    create)
+      apply
+      exit 0
+    ;;
+    destroy)
+      destroy
+      exit 0
+    ;;
+    kubectl)
+      KUBECONFIG=$RUN_PATH/kubeconfig kubectl ${@:2}
+      exit $?
+    ;;
+    load)
+      load $2
+      exit $?
+    ;;
+    -h|--help)
+    print_usage
+    exit 0
+    ;;
+    *)    # unknown option
+    echo "Unknown option $1"
+    exit 1
+    ;;
+esac
+done

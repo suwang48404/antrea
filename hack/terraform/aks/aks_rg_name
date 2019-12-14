@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+OUTPUT=$(az group list --query [].name -o tsv | grep MC_$TF_VAR_aks_resource_group_name | head -n 1)
+jq -n --arg output "$OUTPUT" '{"output":$output}'
