@@ -136,7 +136,9 @@ func run(o *Options) error {
 		ofClient,
 		ifaceStore,
 		k8sClient,
-		podUpdates)
+		podUpdates,
+		routeClient,
+		networkConfig)
 	err = cniServer.Initialize()
 	if err != nil {
 		return fmt.Errorf("error initializing CNI server: %v", err)
@@ -159,7 +161,7 @@ func run(o *Options) error {
 		crdClient,
 		o.config.OVSBridge,
 		nodeConfig.Name,
-		nodeConfig.PodCIDR.String(),
+		fmt.Sprintf("%s", nodeConfig.PodCIDR),
 		ifaceStore,
 		ofClient,
 		ovsBridgeClient,

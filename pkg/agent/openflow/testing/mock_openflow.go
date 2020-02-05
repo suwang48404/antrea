@@ -137,17 +137,17 @@ func (mr *MockClientMockRecorder) Initialize(arg0, arg1, arg2 interface{}) *gomo
 }
 
 // InstallClusterServiceCIDRFlows mocks base method
-func (m *MockClient) InstallClusterServiceCIDRFlows(arg0 *net.IPNet, arg1 uint32) error {
+func (m *MockClient) InstallClusterServiceCIDRFlows(arg0 *net.IPNet, arg1 net.HardwareAddr, arg2 uint32) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "InstallClusterServiceCIDRFlows", arg0, arg1)
+	ret := m.ctrl.Call(m, "InstallClusterServiceCIDRFlows", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // InstallClusterServiceCIDRFlows indicates an expected call of InstallClusterServiceCIDRFlows
-func (mr *MockClientMockRecorder) InstallClusterServiceCIDRFlows(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockClientMockRecorder) InstallClusterServiceCIDRFlows(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InstallClusterServiceCIDRFlows", reflect.TypeOf((*MockClient)(nil).InstallClusterServiceCIDRFlows), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InstallClusterServiceCIDRFlows", reflect.TypeOf((*MockClient)(nil).InstallClusterServiceCIDRFlows), arg0, arg1, arg2)
 }
 
 // InstallDefaultTunnelFlows mocks base method
@@ -244,6 +244,20 @@ func (m *MockClient) ReplayFlows() {
 func (mr *MockClientMockRecorder) ReplayFlows() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReplayFlows", reflect.TypeOf((*MockClient)(nil).ReplayFlows))
+}
+
+// SetupPatchPortFlows mocks base method
+func (m *MockClient) SetupPatchPortFlows(arg0 int32) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetupPatchPortFlows", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetupPatchPortFlows indicates an expected call of SetupPatchPortFlows
+func (mr *MockClientMockRecorder) SetupPatchPortFlows(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetupPatchPortFlows", reflect.TypeOf((*MockClient)(nil).SetupPatchPortFlows), arg0)
 }
 
 // UninstallNodeFlows mocks base method

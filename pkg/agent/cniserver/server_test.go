@@ -449,6 +449,7 @@ func newCNIServer(t *testing.T) *CNIServer {
 		nodeConfig:      testNodeConfig,
 		serverVersion:   cni.AntreaCNIVersion,
 		containerAccess: newContainerAccessArbitrator(),
+		networkConfig:   &config.NetworkConfig{TrafficEncapMode: config.TrafficEncapModeEncap},
 	}
 	cniServer.supportedCNIVersions = buildVersionSet(supportedVersions)
 	return cniServer

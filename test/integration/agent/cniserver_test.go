@@ -15,6 +15,7 @@
 package agent
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -22,9 +23,11 @@ import (
 	"net"
 	"os"
 	"testing"
+	"text/template"
 
 	"github.com/containernetworking/cni/pkg/types"
 	"github.com/containernetworking/cni/pkg/types/current"
+	"github.com/containernetworking/plugins/pkg/ip"
 	"github.com/containernetworking/plugins/pkg/ns"
 	"github.com/containernetworking/plugins/pkg/testutils"
 	"github.com/containernetworking/plugins/plugins/ipam/host-local/backend/allocator"
@@ -42,6 +45,7 @@ import (
 	"github.com/vmware-tanzu/antrea/pkg/agent/config"
 	"github.com/vmware-tanzu/antrea/pkg/agent/interfacestore"
 	openflowtest "github.com/vmware-tanzu/antrea/pkg/agent/openflow/testing"
+	routetest "github.com/vmware-tanzu/antrea/pkg/agent/route/testing"
 	"github.com/vmware-tanzu/antrea/pkg/agent/util"
 	cnimsg "github.com/vmware-tanzu/antrea/pkg/apis/cni/v1beta1"
 	"github.com/vmware-tanzu/antrea/pkg/apis/networking/v1beta1"
@@ -97,12 +101,50 @@ const (
 
 	ipamEndStr = `
     }`
+
+	chainCNINetworkConfigTemplate = `{
+"cniVersion":"{{.CNIVersion}}",
+"name":"azure",
+"prevResult":
+  {
+    "cniVersion":"{{.CNIVersion}}",
+    "interfaces":
+     [
+       {"name":"eth0"},
+       {"name":"eth0"}
+     ],
+    "ips":
+     [
+       {
+         "version":"4",
+         "address":"{{.Subnet}}",
+         "gateway":"{{.Gateway}}"}
+     ],
+    "routes":
+     [
+       {
+         "dst":"{{ (index .Routes 0) }}",
+         "gw":"{{.Gateway}}"
+       }
+     ],
+     "dns":
+     {
+       "nameservers":
+        [
+          "{{.DNS}}"
+        ]
+     }
+  } 
+}`
 )
 
-var ipamMock *ipamtest.MockIPAMDriver
-var ovsServiceMock *ovsconfigtest.MockOVSBridgeClient
-var ofServiceMock *openflowtest.MockClient
-var testNodeConfig *config.NodeConfig
+var (
+	ipamMock       *ipamtest.MockIPAMDriver
+	ovsServiceMock *ovsconfigtest.MockOVSBridgeClient
+	ofServiceMock  *openflowtest.MockClient
+	testNodeConfig *config.NodeConfig
+	routeMock      *routetest.MockClient
+)
 
 type Net struct {
 	Name          string                 `json:"name"`
@@ -122,27 +164,29 @@ type rangeInfo struct {
 }
 
 type testCase struct {
+	CNIVersion string // CNI Version
+	Subnet     string // Single Subnet config: Subnet CIDR
+	Gateway    string // Single Subnet config: Gateway
+	Routes     []string
+	DNS        []string
+
 	t               *testing.T
 	name            string
-	cniVersion      string      // CNI Version
-	subnet          string      // Single subnet config: Subnet CIDR
-	gateway         string      // Single subnet config: Gateway
 	ranges          []rangeInfo // Ranges list (multiple subnets config)
-	expGatewayCIDRs []string    // Expected gateway addresses in CIDR form
+	expGatewayCIDRs []string    // Expected Gateway addresses in CIDR form
 	addresses       []string
-	routes          []string
-	dns             []string
+	networkConfig   string
 }
 
 func (tc testCase) netConfJSON(dataDir string) string {
-	conf := fmt.Sprintf(netConfStr, tc.cniVersion)
+	conf := fmt.Sprintf(netConfStr, tc.CNIVersion)
 	conf += netDefault
-	if tc.subnet != "" || tc.ranges != nil {
+	if tc.Subnet != "" || tc.ranges != nil {
 		conf += ipamStartStr
 		if dataDir != "" {
 			conf += fmt.Sprintf(ipamDataDirStr, dataDir)
 		}
-		if tc.subnet != "" {
+		if tc.Subnet != "" {
 			conf += tc.subnetConfig()
 		}
 		if tc.ranges != nil {
@@ -154,9 +198,9 @@ func (tc testCase) netConfJSON(dataDir string) string {
 }
 
 func (tc testCase) subnetConfig() string {
-	conf := fmt.Sprintf(subnetConfStr, tc.subnet)
-	if tc.gateway != "" {
-		conf += fmt.Sprintf(gatewayConfStr, tc.gateway)
+	conf := fmt.Sprintf(subnetConfStr, tc.Subnet)
+	if tc.Gateway != "" {
+		conf += fmt.Sprintf(gatewayConfStr, tc.Gateway)
 	}
 	return conf
 }
@@ -187,8 +231,8 @@ func (tc testCase) expectedCIDRs() ([]*net.IPNet, []*net.IPNet) {
 			cidrsV6 = append(cidrsV6, cidr)
 		}
 	}
-	if tc.subnet != "" {
-		appendSubnet(tc.subnet)
+	if tc.Subnet != "" {
+		appendSubnet(tc.Subnet)
 	}
 	for _, r := range tc.ranges {
 		appendSubnet(r.subnet)
@@ -198,6 +242,9 @@ func (tc testCase) expectedCIDRs() ([]*net.IPNet, []*net.IPNet) {
 
 func (tc testCase) createCmdArgs(targetNS ns.NetNS, dataDir string) *cnimsg.CniCmdRequest {
 	conf := tc.netConfJSON(dataDir)
+	if len(tc.networkConfig) > 0 {
+		conf = tc.networkConfig
+	}
 	return &cnimsg.CniCmdRequest{
 		CniArgs: &cnimsg.CniCmdArgs{
 			ContainerId:          ContainerID,
@@ -284,7 +331,7 @@ func matchRoute(expectedCIDR string, routes []netlink.Route) (*netlink.Route, er
 }
 
 // checkContainerNetworking checks for the presence of the interface called IFName inside the
-// container namespace and checks for the presence of a default route through the Pod CIDR gateway.
+// container namespace and checks for the presence of a default route through the Pod CIDR Gateway.
 func (tester *cmdAddDelTester) checkContainerNetworking(tc testCase) {
 	testRequire := require.New(tc.t)
 	testAssert := assert.New(tc.t)
@@ -309,7 +356,7 @@ func (tester *cmdAddDelTester) checkContainerNetworking(tc testCase) {
 			return false
 		}
 		found := findAddr()
-		testAssert.Truef(found, "No IP address assigned from subnet %v", expAddr)
+		testAssert.Truef(found, "No IP address assigned from Subnet %v", expAddr)
 	}
 
 	// Check that default route exists.
@@ -381,7 +428,7 @@ func buildOneConfig(name, cniVersion string, orig *Net, prevResult types.Result)
 
 	inject := map[string]interface{}{
 		"name":       name,
-		"cniVersion": cniVersion,
+		"CNIVersion": cniVersion,
 	}
 	// Add previous plugin result
 	if prevResult != nil {
@@ -483,7 +530,9 @@ func newTester() *cmdAddDelTester {
 		ofServiceMock,
 		ifaceStore,
 		k8sFake.NewSimpleClientset(),
-		make(chan v1beta1.PodReference, 100))
+		make(chan v1beta1.PodReference, 100),
+		nil,
+		&config.NetworkConfig{TrafficEncapMode: config.TrafficEncapModeEncap})
 	ctx, _ := context.WithCancel(context.Background())
 	tester.ctx = ctx
 	return tester
@@ -492,7 +541,7 @@ func newTester() *cmdAddDelTester {
 func cmdAddDelCheckTest(testNS ns.NetNS, tc testCase, dataDir string) {
 	testRequire := require.New(tc.t)
 
-	testRequire.Equal("0.4.0", tc.cniVersion)
+	testRequire.Equal("0.4.0", tc.CNIVersion)
 
 	// Get a Add/Del tester based on test case version
 	tester := newTester()
@@ -508,7 +557,7 @@ func cmdAddDelCheckTest(testNS ns.NetNS, tc testCase, dataDir string) {
 	}()
 	tester.setNS(testNS, targetNS)
 
-	ipamResult := ipamtest.GenerateIPAMResult("0.4.0", tc.addresses, tc.routes, tc.dns)
+	ipamResult := ipamtest.GenerateIPAMResult("0.4.0", tc.addresses, tc.Routes, tc.DNS)
 	ipamMock.EXPECT().Add(mock.Any(), mock.Any()).Return(ipamResult, nil).AnyTimes()
 
 	// Mock ovs output while get ovs port external configuration
@@ -533,7 +582,7 @@ func cmdAddDelCheckTest(testNS ns.NetNS, tc testCase, dataDir string) {
 	conf.IPAM, _, err = allocator.LoadIPAMConfig([]byte(confString), "")
 	testRequire.Nil(err)
 
-	newConf, err := buildOneConfig("testConfig", tc.cniVersion, conf, prevResult)
+	newConf, err := buildOneConfig("testConfig", tc.CNIVersion, conf, prevResult)
 	testRequire.Nil(err)
 
 	// Test CHECK
@@ -589,14 +638,14 @@ func TestAntreaServerFunc(t *testing.T) {
 	testCases := []testCase{
 		{
 			name:       "ADD/DEL/CHECK for 0.4.0 config",
-			cniVersion: "0.4.0",
+			CNIVersion: "0.4.0",
 			// IPv4 only
 			ranges: []rangeInfo{{
 				subnet: "10.1.2.0/24",
 			}},
 			expGatewayCIDRs: []string{"10.1.2.1/24"},
 			addresses:       []string{"10.1.2.100/24,10.1.2.1,4"},
-			routes:          []string{"10.0.0.0/8,10.1.2.1", "0.0.0.0/0,10.1.2.1"},
+			Routes:          []string{"10.0.0.0/8,10.1.2.1", "0.0.0.0/0,10.1.2.1"},
 		},
 	}
 	for _, tc := range testCases {
@@ -609,10 +658,192 @@ func TestAntreaServerFunc(t *testing.T) {
 	}
 }
 
+func setupChainTest(
+	controller *mock.Controller, inServer *cniserver.CNIServer, testBridgeName string, netNS ns.NetNS, newServer bool, isL2 bool) (
+	server *cniserver.CNIServer, hostVeth, containerVeth net.Interface, err error) {
+
+	if newServer {
+		ovsServiceMock = ovsconfigtest.NewMockOVSBridgeClient(controller)
+		ofServiceMock = openflowtest.NewMockClient(controller)
+		routeMock = routetest.NewMockClient(controller)
+		ifaceStore := interfacestore.NewInterfaceStore()
+		server = cniserver.New(testSock,
+			"",
+			1500,
+			"",
+			testNodeConfig,
+			ovsServiceMock,
+			ofServiceMock,
+			ifaceStore,
+			k8sFake.NewSimpleClientset(),
+			make(chan v1beta1.PodReference, 100),
+			routeMock,
+			&config.NetworkConfig{TrafficEncapMode: config.TrafficEncapModePassThrough})
+		_, err = net.InterfaceByName(testBridgeName)
+		if err != nil {
+			err = util.CreateBridge(testBridgeName)
+			if err != nil {
+				return
+			}
+		}
+	} else {
+		server = inServer
+	}
+
+	err = netNS.Do(func(hostNS ns.NetNS) error {
+		hostVeth, containerVeth, err = ip.SetupVethWithName(IFName, "", 1500, hostNS)
+		return err
+	})
+	if err != nil {
+		return
+	}
+
+	// l3
+	if !isL2 {
+		_, dst, _ := net.ParseCIDR("10.10.10.1/32")
+		route := &netlink.Route{
+			LinkIndex: hostVeth.Index,
+			Scope:     netlink.SCOPE_LINK,
+			Dst:       dst,
+		}
+		err = netlink.RouteReplace(route)
+		return
+	}
+
+	// l2
+	var bridge string
+	err = util.AttachDevToBridge(&hostVeth, testBridgeName)
+	if err != nil {
+		return
+	}
+	_, bridge, err = util.GetNSPeerDevBridge(netNS.Path(), containerVeth.Name)
+	if err != nil {
+		return
+	}
+	if testBridgeName != bridge {
+		err = fmt.Errorf("mismatch bridge to device actual %s expected %s", bridge, testBridgeName)
+	}
+	return
+}
+
+func TestCNIServerChaining(t *testing.T) {
+	if _, inContainer := os.LookupEnv("INCONTAINER"); !inContainer {
+		t.Skipf("Skip test runs only in container")
+	}
+	testRequire := require.New(t)
+	controller := mock.NewController(t)
+	defer controller.Finish()
+	var server *cniserver.CNIServer
+	testBridgeName := "test-bridge"
+	testPatchPortName := "test-ovs-patch"
+	testPatchOFPort := int32(123)
+	testContainerOFPort := int32(1234)
+	ctx, _ := context.WithCancel(context.Background())
+
+	tc := testCase{
+		name:       "CNI chaining ",
+		CNIVersion: "0.4.0",
+		Subnet:     "10.10.10.2/24",
+		Gateway:    "10.10.10.1",
+		Routes:     []string{"10.0.0.0/8"},
+		DNS:        []string{"8.8.8.8"},
+	}
+
+	// modeIsL2 := []bool{true, true, false, false}
+	modeIsL2 := []bool{true, true, false, false}
+	prevL2Mode := false
+	for _, l2Mode := range modeIsL2 {
+		t.Logf("Running test l2 %v", l2Mode)
+		netNS, err := testutils.NewNS()
+		testRequire.Nil(err)
+
+		newServer := server == nil || prevL2Mode != l2Mode
+		var hostVeth, containerVeth net.Interface
+		server, hostVeth, containerVeth, err = setupChainTest(controller, server, testBridgeName, netNS, newServer, l2Mode)
+		testRequire.Nil(err)
+
+		// create request
+		confParser := template.Must(template.New("").Parse(chainCNINetworkConfigTemplate))
+		conf := bytes.NewBuffer(nil)
+		if err := confParser.Execute(conf, tc); err != nil {
+			t.Errorf("parse template failed: %v", err)
+		}
+		tc.networkConfig = conf.String()
+		cniReq := tc.createCmdArgs(netNS, "")
+
+		// test cmdAdd
+		ovsPortname := hostVeth.Name
+		ovsPortUUID := uuid.New().String()
+		podIP, _, err := net.ParseCIDR(tc.Subnet)
+		testRequire.Nil(err)
+		containerIntf, err := util.GetNSDevInterface(netNS.Path(), IFName)
+		testRequire.Nil(err)
+
+		orderedCalls := make([]*mock.Call, 0)
+		if !l2Mode {
+			testNodeConfig.GatewayConfig.Name = testPatchPortName
+		}
+		if newServer {
+			// patch port expectations
+			if l2Mode {
+				orderedCalls = append(orderedCalls,
+					ovsServiceMock.EXPECT().CreatePatchPortToBridge(testBridgeName, 1500).Return(testPatchPortName, nil))
+			}
+			orderedCalls = append(orderedCalls,
+				ovsServiceMock.EXPECT().GetOFPort(testPatchPortName).Return(testPatchOFPort, nil),
+				ofServiceMock.EXPECT().SetupPatchPortFlows(testPatchOFPort),
+				routeMock.EXPECT().SetupPassThrough(l2Mode),
+			)
+		}
+		// Pod port expectations
+		if !l2Mode {
+			orderedCalls = append(orderedCalls,
+				routeMock.EXPECT().MigrateRoutesToGw(hostVeth.Name))
+		}
+		orderedCalls = append(orderedCalls,
+			// Pod port expectations
+			ovsServiceMock.EXPECT().CreatePort(ovsPortname, ovsPortname, mock.Any()).Return(ovsPortUUID, nil),
+			ovsServiceMock.EXPECT().GetOFPort(ovsPortname).Return(testContainerOFPort, nil),
+			ofServiceMock.EXPECT().InstallPodFlows(ovsPortname, podIP, containerIntf.HardwareAddr, gwMAC, mock.Any()),
+		)
+		mock.InOrder(orderedCalls...)
+		cniResp, err := server.CmdAdd(ctx, cniReq)
+		testRequire.Nil(err)
+		testRequire.Equal(tc.networkConfig, string(cniResp.CniResult))
+
+		// verify veth is not attached to original bridge.
+		var bridge string
+		_, bridge, err = util.GetNSPeerDevBridge(netNS.Path(), containerVeth.Name)
+		testRequire.Nil(err)
+		testRequire.Equal("", bridge)
+
+		// test cmdDel
+		containterHostRt := &net.IPNet{IP: podIP, Mask: net.CIDRMask(32, 32)}
+		orderedCalls = nil
+		if !l2Mode {
+			orderedCalls = append(orderedCalls,
+				routeMock.EXPECT().UnMigrateRoutesFromGw(containterHostRt, ""))
+		}
+		orderedCalls = append(orderedCalls,
+			ofServiceMock.EXPECT().UninstallPodFlows(ovsPortname),
+			ovsServiceMock.EXPECT().DeletePort(ovsPortUUID),
+		)
+		mock.InOrder(orderedCalls...)
+		cniResp, err = server.CmdDel(ctx, cniReq)
+		testRequire.Nil(err)
+		testRequire.Equal([]byte{}, cniResp.CniResult)
+
+		prevL2Mode = l2Mode
+		_ = netNS.Close()
+		tmpLink, _ := netlink.LinkByName(hostVeth.Name)
+		_ = netlink.LinkDel(tmpLink)
+	}
+}
+
 func init() {
 	nodeName := "node1"
 	gwIP := net.ParseIP("192.168.1.1")
-	gwMAC, _ := net.ParseMAC("11:11:11:11:11:11")
+	gwMAC, _ = net.ParseMAC("11:11:11:11:11:11")
 	nodeGateway := &config.GatewayConfig{IP: gwIP, MAC: gwMAC, Name: ""}
 	_, nodePodCIDR, _ := net.ParseCIDR("192.168.1.0/24")
 

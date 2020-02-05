@@ -60,7 +60,7 @@ type Controller struct {
 	kubeClient       clientset.Interface
 	ovsBridgeClient  ovsconfig.OVSBridgeClient
 	ofClient         openflow.Client
-	routeClient      *route.Client
+	routeClient      route.Client
 	iptablesClient   *iptables.Client
 	interfaceStore   interfacestore.InterfaceStore
 	networkConfig    *config.NetworkConfig
@@ -85,7 +85,7 @@ func NewNodeRouteController(
 	informerFactory informers.SharedInformerFactory,
 	client openflow.Client,
 	ovsBridgeClient ovsconfig.OVSBridgeClient,
-	routeClient *route.Client,
+	routeClient route.Client,
 	iptablesClient *iptables.Client,
 	interfaceStore interfacestore.InterfaceStore,
 	networkConfig *config.NetworkConfig,
@@ -297,9 +297,18 @@ func (c *Controller) reconcile() error {
 }
 
 // Run will create defaultWorkers workers (go routines) which will process the Node events from the
-// workqueue.
+// work queue.
 func (c *Controller) Run(stopCh <-chan struct{}) {
 	defer c.queue.ShutDown()
+
+	// If agent is running pass-through mode, it delegates routing to
+	// underlying network. Therefore it needs not know the routes to
+	// peer Pod CIDRs.
+	if c.networkConfig.TrafficEncapMode.IsPassThrough() {
+		klog.Infof("TrafficEncap mode is %s, skipping NodeRouteController", c.networkConfig.TrafficEncapMode)
+		_ = c.iptablesClient.Reconcile()
+		<-stopCh
+	}
 
 	klog.Infof("Starting %s", controllerName)
 	defer klog.Infof("Shutting down %s", controllerName)

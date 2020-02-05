@@ -43,7 +43,7 @@ type Client interface {
 	// InstallClusterServiceCIDRFlows sets up the appropriate flows so that traffic can reach
 	// the different Services running in the Cluster. This method needs to be invoked once with
 	// the Cluster Service CIDR as a parameter.
-	InstallClusterServiceCIDRFlows(serviceNet *net.IPNet, gatewayOFPort uint32) error
+	InstallClusterServiceCIDRFlows(serviceNet *net.IPNet, gatewayMAC net.HardwareAddr, gatewayOFPort uint32) error
 
 	// InstallDefaultTunnelFlows sets up the classification flow for the default (flow based) tunnel.
 	InstallDefaultTunnelFlows(tunnelOFPort uint32) error
@@ -116,6 +116,10 @@ type Client interface {
 	// should be called by the agent after all required flows have been installed / updated with
 	// the new round number.
 	DeleteStaleFlows() error
+
+	// SetupPatchPortFlows configures flows for patch port patchPort. PatchPort is created only when
+	// traffic mode is pass-through.
+	SetupPatchPortFlows(patchPort int32) error
 }
 
 // GetFlowTableStatus returns an array of flow table status.
@@ -218,6 +222,17 @@ func (c *client) InstallPodFlows(containerID string, podInterfaceIP net.IP, podI
 	if c.encapMode.SupportsEncap() {
 		flows = append(flows, c.l3FlowsToPod(gatewayMAC, podInterfaceIP, podInterfaceMAC, cookie.Pod))
 	}
+	if c.encapMode.IsPassThrough() {
+		flows = append(flows,
+			c.l3ToPodFlow(podInterfaceIP, podInterfaceMAC, cookie.Pod),
+		)
+		if !c.isL3PassThrough() {
+			// l3 pass-through needs no classifier for patch port as it is same as local gateway.
+			flows = append(flows,
+				c.patchPortClassifierIPFlow(podInterfaceIP, cookie.Default),
+			)
+		}
+	}
 	return c.addFlows(c.podFlowCache, containerID, flows)
 }
 
@@ -227,8 +242,8 @@ func (c *client) UninstallPodFlows(containerID string) error {
 	return c.deleteFlows(c.podFlowCache, containerID)
 }
 
-func (c *client) InstallClusterServiceCIDRFlows(serviceNet *net.IPNet, gatewayOFPort uint32) error {
-	flow := c.serviceCIDRDNATFlow(serviceNet, gatewayOFPort, cookie.Service)
+func (c *client) InstallClusterServiceCIDRFlows(serviceNet *net.IPNet, gatewayMAC net.HardwareAddr, gatewayOFPort uint32) error {
+	flow := c.serviceCIDRDNATFlow(serviceNet, gatewayMAC, gatewayOFPort, cookie.Service)
 	if err := c.flowOperations.Add(flow); err != nil {
 		return err
 	}
@@ -240,14 +255,19 @@ func (c *client) InstallGatewayFlows(gatewayAddr net.IP, gatewayMAC net.Hardware
 	flows := []binding.Flow{
 		c.gatewayClassifierFlow(gatewayOFPort, cookie.Default),
 		c.gatewayIPSpoofGuardFlow(gatewayOFPort, cookie.Default),
-		c.gatewayARPSpoofGuardFlow(gatewayOFPort, gatewayAddr, gatewayMAC, cookie.Default),
 		c.ctRewriteDstMACFlow(gatewayMAC, cookie.Default),
 		c.l2ForwardCalcFlow(gatewayMAC, gatewayOFPort, cookie.Default),
+		c.gatewayARPSpoofGuardFlow(gatewayOFPort, gatewayAddr, gatewayMAC, cookie.Default),
 		c.localProbeFlow(gatewayAddr, cookie.Default),
 	}
+
 	// In NoEncap , no traffic from tunnel port
 	if c.encapMode.SupportsEncap() {
 		flows = append(flows, c.l3ToGatewayFlow(gatewayAddr, gatewayMAC, cookie.Default))
+	}
+
+	if c.encapMode.SupportsNoEncap() && !c.encapMode.IsPassThrough() {
+		flows = append(flows, c.reEntranceBypassCTFlow(gatewayOFPort, gatewayOFPort, cookie.Default))
 	}
 
 	if err := c.flowOperations.AddAll(flows); err != nil {
@@ -283,17 +303,18 @@ func (c *client) initialize() error {
 		return fmt.Errorf("failed to install flows to skip established connections: %v", err)
 	}
 
-	if c.encapMode.SupportsNoEncap() {
-		if err := c.flowOperations.Add(c.l2ForwardOutputInPortFlow(config.HostGatewayOFPort, cookie.Default)); err != nil {
+	if c.encapMode.SupportsNoEncap() && !c.encapMode.IsPassThrough() {
+		if err := c.flowOperations.Add(c.l2ForwardOutputReentInPortFlow(config.HostGatewayOFPort, cookie.Default)); err != nil {
 			return fmt.Errorf("failed to install L2 forward same in-port and out-port flow: %v", err)
 		}
 	}
 	return nil
 }
 
-func (c *client) Initialize(roundInfo types.RoundInfo, config *config.NodeConfig, encapMode config.TrafficEncapModeType) (<-chan struct{}, error) {
-	c.nodeConfig = config
+func (c *client) Initialize(roundInfo types.RoundInfo, nodeConfig *config.NodeConfig, encapMode config.TrafficEncapModeType) (<-chan struct{}, error) {
+	c.nodeConfig = nodeConfig
 	c.encapMode = encapMode
+	c.gatewayPort = config.HostGatewayOFPort // Do better ??
 	// Initiate connections to target OFswitch, and create tables on the switch.
 	connCh := make(chan struct{})
 	if err := c.bridge.Connect(maxRetryForOFSwitch, connCh); err != nil {
@@ -371,4 +392,40 @@ func (c *client) DeleteStaleFlows() error {
 		return nil
 	}
 	return c.deleteFlowsByRoundNum(*c.roundInfo.PrevRoundNum)
+}
+
+func (c *client) isL3PassThrough() bool {
+	return c.encapMode.IsPassThrough() && c.patchPort > 0 && c.patchPort == c.gatewayPort
+}
+
+func (c *client) SetupPatchPortFlows(patchPort int32) error {
+	c.patchPort = uint32(patchPort)
+	if err := c.flowOperations.Add(c.patchPortClassifierARPFlow(cookie.Default)); err != nil {
+		return fmt.Errorf("failed to install patchPortClassifierARPFlow: %v", err)
+	}
+	if err := c.flowOperations.Add(c.l3BypassMacRewriteFlow(c.nodeConfig.GatewayConfig.MAC, cookie.Default)); err != nil {
+		return fmt.Errorf("failed to install l3BypassMacRewriteFlow: %v", err)
+	}
+	if err := c.flowOperations.Add(c.reEntranceBypassCTFlow(c.gatewayPort, c.patchPort, cookie.Default)); err != nil {
+		return fmt.Errorf("failed to install reEntranceBypassCTFlow: %v", err)
+	}
+	if c.isL3PassThrough() {
+		if err := c.flowOperations.Add(c.l3ToPatchFlow(c.nodeConfig.GatewayConfig.MAC, cookie.Default)); err != nil {
+			return fmt.Errorf("failed to install l3ToFromGwFlow: %v", err)
+		}
+		if err := c.flowOperations.Add(c.arpResponderStaticFlow(cookie.Default)); err != nil {
+			return fmt.Errorf("failed to install arpResponderStaticFlow: %v", err)
+		}
+		if err := c.flowOperations.Add(c.l2ForwardOutputReentInPortFlow(c.gatewayPort, cookie.Default)); err != nil {
+			return fmt.Errorf("failed to install l2ForwardOutputReentInPortFlow: %v", err)
+		}
+	} else {
+		if err := c.flowOperations.Add(c.l2ForwardCalcToPatchPort(cookie.Default)); err != nil {
+			return fmt.Errorf("failed to install l2ForwardCalcToPatchPortFromGwFlow: %v", err)
+		}
+		if err := c.flowOperations.Add(c.l2ForwardOutputReentPatchPortFlow(c.gatewayPort, c.patchPort, cookie.Default)); err != nil {
+			return fmt.Errorf("failed to install l2ForwardOutputReentPatchPortFlow: %v", err)
+		}
+	}
+	return nil
 }

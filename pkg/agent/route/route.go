@@ -20,12 +20,14 @@ import (
 	"os"
 	"strings"
 
+	"github.com/containernetworking/plugins/pkg/utils/sysctl"
 	"github.com/vishvananda/netlink"
 	"golang.org/x/sys/unix"
 	"k8s.io/klog"
 
 	"github.com/vmware-tanzu/antrea/pkg/agent/config"
 	"github.com/vmware-tanzu/antrea/pkg/agent/iptables"
+	"github.com/vmware-tanzu/antrea/pkg/agent/util"
 )
 
 const (
@@ -38,8 +40,19 @@ const (
 	AntreaIPRulePriority = 300
 )
 
+type Client interface {
+	Initialize(nodeConfig *config.NodeConfig) error
+	AddPeerCIDRRoute(peerPodCIDR *net.IPNet, gwLinkIdx int, peerNodeIP, peerGwIP net.IP) ([]*netlink.Route, error)
+	ListPeerCIDRRoute() (map[string][]*netlink.Route, error)
+	DeletePeerCIDRRoute(routes []*netlink.Route) error
+	RemoveServiceRouting() error
+	SetupPassThrough(isL2 bool) error
+	MigrateRoutesToGw(linkName string) error
+	UnMigrateRoutesFromGw(route *net.IPNet, linkName string) error
+}
+
 // Client is route client.
-type Client struct {
+type client struct {
 	nodeConfig *config.NodeConfig
 	encapMode  config.TrafficEncapModeType
 }
@@ -63,12 +76,12 @@ var (
 )
 
 // NewClient returns a route client
-func NewClient(encapMode config.TrafficEncapModeType) *Client {
-	return &Client{encapMode: encapMode}
+func NewClient(encapMode config.TrafficEncapModeType) Client {
+	return &client{encapMode: encapMode}
 }
 
 // Initialize sets up route tables for Antrea.
-func (c *Client) Initialize(nodeConfig *config.NodeConfig) error {
+func (c *client) Initialize(nodeConfig *config.NodeConfig) error {
 	c.nodeConfig = nodeConfig
 	if c.encapMode.SupportsNoEncap() {
 		ServiceRtTable.Idx = AntreaServiceTableIdx
@@ -100,7 +113,7 @@ func (c *Client) Initialize(nodeConfig *config.NodeConfig) error {
 	}
 
 	gwConfig := c.nodeConfig.GatewayConfig
-	if gwConfig != nil && c.nodeConfig.PodCIDR != nil {
+	if !c.encapMode.IsPassThrough() {
 		// Add local podCIDR if applicable to service rt table.
 		route := &netlink.Route{
 			LinkIndex: gwConfig.LinkIndex,
@@ -117,7 +130,7 @@ func (c *Client) Initialize(nodeConfig *config.NodeConfig) error {
 	ipRule := netlink.NewRule()
 	ipRule.IifName = c.nodeConfig.GatewayConfig.Name
 	ipRule.Mark = iptables.RtTblSelectorValue
-	ipRule.Mask = 0xffffffff
+	ipRule.Mask = iptables.RtTblSelectorValue
 	ipRule.Table = ServiceRtTable.Idx
 	ipRule.Priority = AntreaIPRulePriority
 
@@ -139,7 +152,7 @@ func (c *Client) Initialize(nodeConfig *config.NodeConfig) error {
 }
 
 // AddPeerCIDRRoute adds routes to route tables for Antrea use.
-func (c *Client) AddPeerCIDRRoute(peerPodCIDR *net.IPNet, gwLinkIdx int, peerNodeIP, peerGwIP net.IP) ([]*netlink.Route, error) {
+func (c *client) AddPeerCIDRRoute(peerPodCIDR *net.IPNet, gwLinkIdx int, peerNodeIP, peerGwIP net.IP) ([]*netlink.Route, error) {
 	if peerPodCIDR == nil {
 		return nil, fmt.Errorf("empty peer pod CIDR")
 	}
@@ -194,7 +207,7 @@ func (c *Client) AddPeerCIDRRoute(peerPodCIDR *net.IPNet, gwLinkIdx int, peerNod
 }
 
 // ListPeerCIDRRoute returns list of routes from peer and local CIDRs
-func (c *Client) ListPeerCIDRRoute() (map[string][]*netlink.Route, error) {
+func (c *client) ListPeerCIDRRoute() (map[string][]*netlink.Route, error) {
 	// get all routes on gw0 from service table.
 	filter := &netlink.Route{
 		Table:     ServiceRtTable.Idx,
@@ -247,7 +260,7 @@ func (c *Client) ListPeerCIDRRoute() (map[string][]*netlink.Route, error) {
 }
 
 // DeletePeerCIDRRoute deletes routes.
-func (c *Client) DeletePeerCIDRRoute(routes []*netlink.Route) error {
+func (c *client) DeletePeerCIDRRoute(routes []*netlink.Route) error {
 	for _, r := range routes {
 		klog.V(4).Infof("Deleting route %v", r)
 		if err := netlink.RouteDel(r); err != nil && err != unix.ESRCH {
@@ -257,7 +270,7 @@ func (c *Client) DeletePeerCIDRRoute(routes []*netlink.Route) error {
 	return nil
 }
 
-func (c *Client) readRtTable() (string, error) {
+func (c *client) readRtTable() (string, error) {
 	f, err := os.OpenFile(routeTableConfigPath, os.O_RDONLY, 0)
 	if err != nil {
 		return "", fmt.Errorf("route table(open): %w", err)
@@ -273,7 +286,7 @@ func (c *Client) readRtTable() (string, error) {
 }
 
 // RemoveServiceRouting removes service routing setup.
-func (c *Client) RemoveServiceRouting() error {
+func (c *client) RemoveServiceRouting() error {
 	// remove service table
 	tables, err := c.readRtTable()
 	if err != nil {
@@ -310,10 +323,140 @@ func (c *Client) RemoveServiceRouting() error {
 	ipRule := netlink.NewRule()
 	ipRule.IifName = c.nodeConfig.GatewayConfig.Name
 	ipRule.Mark = iptables.RtTblSelectorValue
+	ipRule.Mask = iptables.RtTblSelectorValue
 	ipRule.Table = AntreaServiceTableIdx
 	ipRule.Priority = AntreaIPRulePriority
 	if err = netlink.RuleDel(ipRule); err != nil {
 		return fmt.Errorf("ip rule delete: %w", err)
+	}
+	return nil
+}
+
+// resolveDefaultRouteNHMAC resolves the MAC of default route next
+// hop on service route table.
+func (c *client) resolveDefaultRouteNHMAC() (net.HardwareAddr, error) {
+	// This MAC is relevant to L2 mode only.
+	// TODO, for now uses AKS default MAC.
+	return net.ParseMAC("12:34:56:78:9a:bc")
+}
+
+// SetupPassThrough configures routing needed by traffic pass-through mode.
+func (c *client) SetupPassThrough(isL2 bool) error {
+	gwLink := util.GetNetLink(c.nodeConfig.GatewayConfig.Name)
+	_, gwIP, _ := net.ParseCIDR(fmt.Sprintf("%s/32", c.nodeConfig.NodeIPAddr.IP.String()))
+	if err := netlink.AddrReplace(gwLink, &netlink.Addr{IPNet: gwIP}); err != nil {
+		klog.Fatalf("Failed to add address %s to gw %s: %v", gwIP, gwLink.Attrs().Name, err)
+	}
+	if isL2 {
+		ctrls := []struct {
+			fmt string
+			val string
+		}{
+			// relax rp_filter so that packets from gw0 are allowed
+			{"net.ipv4.conf.%s.rp_filter", "2"},
+			// drop gratuitous arp
+			{"net.ipv4.conf.%s.drop_gratuitous_arp", "1"},
+			// do not reply arp
+			{"net.ipv4.conf.%s.arp_ignore", "8"},
+		}
+		for _, ctl := range ctrls {
+			ctlStr := fmt.Sprintf(ctl.fmt, gwLink.Attrs().Name)
+			if _, err := sysctl.Sysctl(ctlStr, ctl.val); err != nil {
+				klog.Fatalf("Failed to set sysctl %s: %v", ctl, err)
+			}
+		}
+	}
+
+	// add default route to service table.
+	_, defaultRt, _ := net.ParseCIDR("0/0")
+	nhIP := net.ParseIP("169.254.253.1")
+	route := &netlink.Route{
+		LinkIndex: gwLink.Attrs().Index,
+		Table:     ServiceRtTable.Idx,
+		Flags:     int(netlink.FLAG_ONLINK),
+		Dst:       defaultRt,
+		Gw:        nhIP,
+	}
+	if err := netlink.RouteReplace(route); err != nil {
+		klog.Fatalf("Failed to add default route to service table: %v", err)
+	}
+
+	// add static neighbor to next hop so that no ARPING is ever required on gw0
+	nhMAC, _ := c.resolveDefaultRouteNHMAC()
+	neigh := &netlink.Neigh{
+		LinkIndex:    gwLink.Attrs().Index,
+		Family:       netlink.FAMILY_V4,
+		State:        netlink.NUD_PERMANENT,
+		IP:           nhIP,
+		HardwareAddr: nhMAC,
+	}
+	if err := netlink.NeighSet(neigh); err != nil {
+		klog.Fatalf("Failed to add neigh %v to gw %s: %v", neigh, gwLink.Attrs().Name, err)
+	}
+	return nil
+}
+
+// MigrateRoutesToGw moves routes (including assigned IP addresses if any) from link linkName to
+// host gateway.
+func (c *client) MigrateRoutesToGw(linkName string) error {
+	gwLink := util.GetNetLink(c.nodeConfig.GatewayConfig.Name)
+	link, err := netlink.LinkByName(linkName)
+	if err != nil {
+		return fmt.Errorf("failed to get link %s: %w", linkName, err)
+	}
+
+	// Swap route first then address, otherwise route gets removed when address is removed.
+	routes, err := netlink.RouteList(link, netlink.FAMILY_V4)
+	if err != nil {
+		return fmt.Errorf("failed to get routes for link %s: %w", linkName, err)
+	}
+	for _, route := range routes {
+		route.LinkIndex = gwLink.Attrs().Index
+		if err = netlink.RouteReplace(&route); err != nil {
+			return fmt.Errorf("failed to add route %v to link %s: %w", &route, gwLink.Attrs().Name, err)
+		}
+	}
+
+	// swap address if any
+	addrs, err := netlink.AddrList(link, netlink.FAMILY_V4)
+	if err != nil {
+		return fmt.Errorf("failed to get addresses for %s: %w", linkName, err)
+	}
+	for _, addr := range addrs {
+		if err = netlink.AddrDel(link, &addr); err != nil {
+			klog.Errorf("failed to delete addr %v from %s: %w", addr, link, err)
+		}
+		tmpAddr := &netlink.Addr{IPNet: addr.IPNet}
+		if err = netlink.AddrReplace(gwLink, tmpAddr); err != nil {
+			return fmt.Errorf("failed to add addr %v to gw %s: %w", addr, gwLink.Attrs().Name, err)
+		}
+	}
+	return nil
+}
+
+// UnMigrateRoutesToGw move route from gw to link linkName if provided; otherwise route is deleted
+func (c *client) UnMigrateRoutesFromGw(route *net.IPNet, linkName string) error {
+	gwLink := util.GetNetLink(c.nodeConfig.GatewayConfig.Name)
+	var link netlink.Link = nil
+	var err error
+	if len(linkName) > 0 {
+		link, err = netlink.LinkByName(linkName)
+		if err != nil {
+			return fmt.Errorf("failed to get link %s: %w", linkName, err)
+		}
+	}
+	routes, err := netlink.RouteList(gwLink, netlink.FAMILY_V4)
+	if err != nil {
+		return fmt.Errorf("failed to get routes for link %s: %w", gwLink.Attrs().Name, err)
+	}
+	for _, rt := range routes {
+		if route.String() == rt.Dst.String() {
+			if link != nil {
+				rt.LinkIndex = link.Attrs().Index
+				return netlink.RouteReplace(&rt)
+			}
+			return netlink.RouteDel(&rt)
+		}
 	}
 	return nil
 }

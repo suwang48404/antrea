@@ -23,6 +23,8 @@ import (
 	"github.com/TomCodeLV/OVSDB-golang-lib/pkg/helpers"
 	"github.com/TomCodeLV/OVSDB-golang-lib/pkg/ovsdb"
 	"k8s.io/klog"
+
+	"github.com/vmware-tanzu/antrea/pkg/agent/util"
 )
 
 type OVSBridge struct {
@@ -52,6 +54,8 @@ const (
 	openflowProtoVersion13 = "OpenFlow13"
 	// Maximum allowed value of ofPortRequest.
 	ofPortRequestMax = 65279
+	// PatchPortPrefix is prefix to a patch port
+	PatchPortPrefix = "patch-to-"
 )
 
 // NewOVSDBConnectionUDS connects to the OVSDB server on the UNIX domain socket
@@ -671,4 +675,18 @@ func (br *OVSBridge) GetOVSVersion() (string, Error) {
 	}
 
 	return res[0].Rows[0].(map[string]interface{})["ovs_version"].(string), nil
+}
+
+// ConnectPatchPortToBridge creates a port to bridge bridgeName via veth-pair, and returns the port name on ovs.
+func (br *OVSBridge) CreatePatchPortToBridge(bridgeName string, MTU int) (string, error) {
+	patchPortName := PatchPortPrefix + bridgeName
+	peerPatchPortName := PatchPortPrefix + br.name
+	if err := util.ConnectPatchPortToBridge(bridgeName, patchPortName, peerPatchPortName, MTU); err != nil {
+		return "", fmt.Errorf("connect to bridge failed: %w", err)
+	}
+	if _, err := br.CreatePort(patchPortName, patchPortName, nil); err != nil {
+		return "", fmt.Errorf("ovs create patch port failed: %w", err)
+	}
+
+	return patchPortName, nil
 }

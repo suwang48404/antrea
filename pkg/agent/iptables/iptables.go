@@ -125,10 +125,16 @@ func (c *Client) Initialize(nodeConfig *config.NodeConfig) error {
 		{FilterTable, AntreaForwardChain, []string{"-i", c.hostGateway, "!", "-o", c.hostGateway}, MarkTarget, []string{"--set-xmark", masqueradeMark}, "Antrea: mark pod to external traffic"},
 		// Accept Pod-to-external traffic which are received via host gateway interface but not sent via it.
 		{FilterTable, AntreaForwardChain, []string{"-i", c.hostGateway, "!", "-o", c.hostGateway}, AcceptTarget, nil, "Antrea: accept pod to external traffic"},
-		// Append ANTREA-POSTROUTING chain which contains Antrea related postrouting rules to POSTROUTING chain.
-		{NATTable, PostRoutingChain, nil, AntreaPostRoutingChain, nil, "Antrea: jump to Antrea postrouting rules"},
-		// Masquerade traffic requiring SNAT (has masqueradeMark set).
-		{NATTable, AntreaPostRoutingChain, []string{"-m", "mark", "--mark", masqueradeMark}, MasqueradeTarget, nil, "Antrea: masquerade traffic requiring SNAT"},
+	}
+
+	if !c.encapMode.IsPassThrough() {
+		//pass-through expects underlying network providing masquerading.
+		rules = append(rules,
+			// Append ANTREA-POSTROUTING chain which contains Antrea related postrouting rules to POSTROUTING chain.
+			rule{NATTable, PostRoutingChain, nil, AntreaPostRoutingChain, nil, "Antrea: jump to Antrea postrouting rules"},
+			// Masquerade traffic requiring SNAT (has masqueradeMark set).
+			rule{NATTable, AntreaPostRoutingChain, []string{"-m", "mark", "--mark", masqueradeMark}, MasqueradeTarget, nil, "Antrea: masquerade traffic requiring SNAT"},
+		)
 	}
 
 	if c.encapMode.SupportsNoEncap() {
@@ -138,10 +144,13 @@ func (c *Client) Initialize(nodeConfig *config.NodeConfig) error {
 			//  Marks service traffic in PREROUTING chain so that service traffic may use ip rule to pick up the service route table.
 			rule{table: MangleTable, chain: AntreaMangleChain, parameters: []string{"-i", c.hostGateway, "-d", c.serviceCIDR.String()},
 				target: MarkTarget, targetOptions: []string{"--set-xmark", rtTblSelectorMark}, comment: "Antrea: mark service traffic"},
+			//  Un-marks service traffic post LB in PREROUTING chain so that post LB service traffic uses main route table.
+			rule{table: MangleTable, chain: AntreaMangleChain, parameters: []string{"-i", c.hostGateway, "!", "-d", c.serviceCIDR.String()},
+				target: MarkTarget, targetOptions: []string{"--set-xmark", "0x0/0xffffffff"}, comment: "Antrea: unmark post LB service traffic"},
 			// 	Creates AntreaRaw chain in raw table PREROUTING chain.
 			rule{table: RawTable, chain: PreRoutingChain, parameters: nil, target: AntreaRawChain, targetOptions: nil, comment: "Antrea: jump to Antrea raw rule"},
 			//  Allows re-entering Pod-to-Pod traffic identified by src-mac=ReentraceMAC to bypass conntrack.
-			rule{table: RawTable, chain: AntreaRawChain, parameters: []string{"-i", c.hostGateway, "-m", "mac", "--mac-source", openflow.ReentranceMAC.String()}, target: ConnTrackTarget, targetOptions: []string{"--notrack"}, comment: "Antrea: reentry pod traffic skip conntrack"})
+			rule{table: RawTable, chain: AntreaRawChain, parameters: []string{"-m", "mac", "--mac-source", openflow.ReentranceMAC.String()}, target: ConnTrackTarget, targetOptions: []string{"--notrack"}, comment: "Antrea: reentry pod traffic skip conntrack"})
 	}
 
 	// Ensure all the chains involved exist.

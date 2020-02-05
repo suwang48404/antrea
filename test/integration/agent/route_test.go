@@ -23,7 +23,7 @@ import (
 	"testing"
 
 	"github.com/containernetworking/plugins/pkg/ip"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/vishvananda/netlink"
 
 	"github.com/vmware-tanzu/antrea/pkg/agent/config"
@@ -72,20 +72,19 @@ func TestRouteTable(t *testing.T) {
 	}
 
 	// create dummy gw interface
-	gwLink := &netlink.Veth{}
+	gwLink := &netlink.Dummy{}
 	gwLink.Name = gwName
-	gwLink.PeerName = gwLink.Name + "-peer"
-	if err := netlink.LinkAdd(gwLink); err != nil {
-		t.Error(err)
-	}
+	err := netlink.LinkAdd(gwLink)
+	require.Nil(t, err)
+	err = netlink.LinkSetUp(gwLink)
+	require.Nil(t, err)
 
-	link, _ := netlink.LinkByName(gwLink.Name)
-	if err := netlink.LinkSetUp(link); err != nil {
-		t.Error(err)
-	}
+	defer func() {
+		_ = netlink.LinkDel(gwLink)
+	}()
 
-	nodeConfig.GatewayConfig.LinkIndex = link.Attrs().Index
-
+	nodeConfig.GatewayConfig.Name = gwLink.Attrs().Name
+	nodeConfig.GatewayConfig.LinkIndex = gwLink.Attrs().Index
 	refRouteTablesStr, _ := ExecOutputTrim("cat /etc/iproute2/rt_tables")
 	tcs := []struct {
 		// variations
@@ -114,49 +113,38 @@ func TestRouteTable(t *testing.T) {
 		nodeConfig.PodCIDR = tc.podCIDR
 		t.Logf("Running test with mode %s peer cidr %s peer ip %s node config %s", tc.mode, tc.peerCIDR, tc.peerIP, nodeConfig)
 		routeClient := route.NewClient(tc.mode)
-		if err := routeClient.Initialize(nodeConfig); err != nil {
-			t.Error(err)
-		}
+		err = routeClient.Initialize(nodeConfig)
+		require.Nil(t, err)
 		// Call initialize twice and verify no duplicates
-		if err := routeClient.Initialize(nodeConfig); err != nil {
-			t.Error(err)
-		}
+		err = routeClient.Initialize(nodeConfig)
+		require.Nil(t, err)
+
 		// verify route tables
 		expRouteTablesStr := refRouteTablesStr
 		if tc.expSvcTbl {
 			expRouteTablesStr = fmt.Sprintf("%s%d%s", refRouteTablesStr, route.ServiceRtTable.Idx, route.ServiceRtTable.Name)
 		}
 		routeTables, err := ExecOutputTrim("cat /etc/iproute2/rt_tables")
-		if err != nil {
-			t.Error(err)
-		}
-		if !assert.Equal(t, expRouteTablesStr, routeTables) {
-			t.Errorf("mismatch route tables")
-		}
+		require.Nil(t, err)
+		require.Equal(t, expRouteTablesStr, routeTables)
 
 		if tc.expSvcTbl && tc.podCIDR != nil {
 			expRouteStr := fmt.Sprintf("%s dev %s scope link", tc.podCIDR, gwName)
 			expRouteStr = strings.Join(strings.Fields(expRouteStr), "")
 			ipRoute, _ := ExecOutputTrim(fmt.Sprintf("ip route show table %d | grep %s", svcTblIdx, tc.podCIDR))
-			if len(ipRoute) > len(expRouteStr) {
-				ipRoute = ipRoute[:len(expRouteStr)]
-			}
-			if !assert.Equal(t, expRouteStr, ipRoute) {
-				t.Errorf("mismatch link route")
-			}
+			require.Equal(t, expRouteStr, ipRoute)
 		}
 
 		// verify ip rules
 		expIPRulesStr := ""
 		if tc.expIPRule {
-			expIPRulesStr = fmt.Sprintf("%d: from all fwmark %#x iif %s lookup %s", route.AntreaIPRulePriority, iptables.RtTblSelectorValue,
+			expIPRulesStr = fmt.Sprintf("%d: from all fwmark %#x/%#x iif %s lookup %s",
+				route.AntreaIPRulePriority, iptables.RtTblSelectorValue, iptables.RtTblSelectorValue,
 				gwName, svcTblName)
 			expIPRulesStr = strings.Join(strings.Fields(expIPRulesStr), "")
 		}
 		ipRule, _ := ExecOutputTrim(fmt.Sprintf("ip rule | grep %x", iptables.RtTblSelectorValue))
-		if !assert.Equal(t, expIPRulesStr, ipRule) {
-			t.Errorf("mismatch ip rules")
-		}
+		require.Equal(t, expIPRulesStr, ipRule)
 
 		// verify routes
 		var peerCIDR *net.IPNet
@@ -166,9 +154,7 @@ func TestRouteTable(t *testing.T) {
 			nhCIDRIP = ip.NextIP(peerCIDR.IP)
 		}
 		routes, err := routeClient.AddPeerCIDRRoute(peerCIDR, gwLink.Index, tc.peerIP, nhCIDRIP)
-		if len(routes) != len(tc.expRoutes) {
-			t.Errorf("mismatch number of routes, expected %d, actual %d", len(tc.expRoutes), len(routes))
-		}
+		require.Equal(t, len(routes), len(tc.expRoutes))
 
 		for tblIdx, link := range tc.expRoutes {
 			nhIP := nhCIDRIP
@@ -183,59 +169,144 @@ func TestRouteTable(t *testing.T) {
 			if len(ipRoute) > len(expRouteStr) {
 				ipRoute = ipRoute[:len(expRouteStr)]
 			}
-			if !assert.Equal(t, expRouteStr, ipRoute) {
-				t.Errorf("mismatch route")
-			}
+			require.Equal(t, expRouteStr, ipRoute)
 		}
 
 		// test list route
 		rtMap, err := routeClient.ListPeerCIDRRoute()
-		if err != nil {
-			t.Error(err)
-		}
+		require.Nil(t, err)
+
 		t.Logf("list route %s", rtMap)
-
-		// one local, one remote, local can be down
-		if !assert.Contains(t, []int{1, 2}, len(rtMap)) {
-			t.Errorf("mismatch list route count")
+		expRtCount := 2
+		if !tc.mode.SupportsNoEncap() {
+			expRtCount = 1
 		}
-
-		if !assert.Contains(t, rtMap, tc.peerCIDR) {
-			t.Error("mismatch list route content")
-		}
-
-		if !assert.Equal(t, len(tc.expRoutes), len(rtMap[tc.peerCIDR])) {
-			t.Error("mismatch list route content")
-		}
+		require.Equal(t, expRtCount, len(rtMap))
+		require.Contains(t, rtMap, tc.peerCIDR)
+		require.Equal(t, len(tc.expRoutes), len(rtMap[tc.peerCIDR]))
 
 		// test delete route
-		if err = routeClient.DeletePeerCIDRRoute(rtMap[tc.peerCIDR]); err != nil {
-			t.Errorf("route delete failed with err %v", err)
-		}
+		err = routeClient.DeletePeerCIDRRoute(rtMap[tc.peerCIDR])
+		require.Nil(t, err)
 
 		if tc.mode != config.TrafficEncapModeEncap {
-			if err = routeClient.RemoveServiceRouting(); err != nil {
-				t.Errorf("route reset failed with err %v", err)
-			}
+			err = routeClient.RemoveServiceRouting()
+			require.Nil(t, err)
 		}
 
 		// verify route table cleanup works
 		routeTables, err = ExecOutputTrim("cat /etc/iproute2/rt_tables")
-		if err != nil {
-			t.Error(err)
-		}
-		if !assert.Equal(t, refRouteTablesStr, routeTables) {
-			t.Errorf("mismatch route tables after cleanup")
-		}
+		require.Nil(t, err)
+		require.Equal(t, refRouteTablesStr, routeTables)
 		// verify no ip rule
 		output, err := ExecOutputTrim(fmt.Sprintf("ip rule | grep %x", iptables.RtTblSelectorValue))
-		if !assert.Error(t, err) {
-			t.Errorf("ip rule not cleaned %s", output)
-		}
+		require.Errorf(t, err, output)
+
 		// verify no routes
 		output, err = ExecOutputTrim(fmt.Sprintf("ip route show table %s", route.AntreaServiceTable))
-		if !assert.Error(t, err) {
-			t.Errorf("route not cleaned %s", output)
+		require.Errorf(t, err, output)
+	}
+}
+
+func TestRouteTablePassThrough(t *testing.T) {
+	if _, incontainer := os.LookupEnv("INCONTAINER"); !incontainer {
+		// test changes file system, routing table. Run in contain only
+		t.Skipf("Skip test runs only in container")
+	}
+
+	testCases := []struct {
+		isL2 bool
+	}{
+		{isL2: true},
+		{isL2: false},
+	}
+	for _, tc := range testCases {
+		t.Logf("Running pass-through, l2 = %v ", tc.isL2)
+		// create dummy gw interface
+		gwLink := &netlink.Dummy{}
+		gwLink.Name = gwName
+		err := netlink.LinkAdd(gwLink)
+		require.Nilf(t, err, fmt.Sprintf("%v", err))
+		err = netlink.LinkSetUp(gwLink)
+		require.Nil(t, err)
+
+		routeClient := route.NewClient(config.TrafficEncapModePassThrough)
+		err = routeClient.Initialize(nodeConfig)
+		require.Nil(t, err)
+		err = routeClient.SetupPassThrough(tc.isL2)
+		require.Nil(t, err)
+		//verify gw IP
+		gwName := nodeConfig.GatewayConfig.Name
+		gwIPOut, err := ExecOutputTrim(fmt.Sprintf("ip addr show %s", gwName))
+		require.Nil(t, err)
+		gwIP := net.IPNet{
+			IP:   nodeConfig.NodeIPAddr.IP,
+			Mask: net.CIDRMask(32, 32),
 		}
+		require.Contains(t, gwIPOut, gwIP.String())
+		// verify sysctl
+		if tc.isL2 {
+			gwSysctlOut, err := ExecOutputTrim(fmt.Sprintf("sysctl -a | grep %s", gwName))
+			require.Nil(t, err)
+			expectGwCtls := []string{
+				fmt.Sprintf("net.ipv4.conf.%s.rp_filter=2", gwName),
+				fmt.Sprintf("net.ipv4.conf.%s.drop_gratuitous_arp=1", gwName),
+				fmt.Sprintf("net.ipv4.conf.%s.arp_ignore=8", gwName),
+			}
+			for _, ctl := range expectGwCtls {
+				require.Contains(t, gwSysctlOut, ctl)
+			}
+		}
+		// verify default routes and neigh
+		expRoute := strings.Join(strings.Fields(
+			"default via 169.254.253.1 dev gw0 onlink"), "")
+		routeOut, err := ExecOutputTrim(fmt.Sprintf("ip route show table %d", svcTblIdx))
+		require.Equal(t, expRoute, routeOut)
+		expNeigh := strings.Join(strings.Fields(
+			"169.254.253.1 dev gw0 lladdr 12:34:56:78:9a:bc PERMANENT"), "")
+		neighOut, err := ExecOutputTrim(fmt.Sprintf("ip neigh | grep %s", gwName))
+		require.Equal(t, expNeigh, neighOut)
+
+		if !tc.isL2 {
+			cLink := &netlink.Dummy{}
+			cLink.Name = "containerLink"
+			err = netlink.LinkAdd(cLink)
+			require.Nilf(t, err, fmt.Sprintf("%v", err))
+			err = netlink.LinkSetUp(cLink)
+			require.Nil(t, err)
+
+			_, ipAddr, _ := net.ParseCIDR("10.10.1.1/32")
+			_, hostRt, _ := net.ParseCIDR("10.10.1.2/32")
+			err = netlink.AddrAdd(cLink, &netlink.Addr{IPNet: ipAddr})
+			require.Nil(t, err)
+			rt := &netlink.Route{
+				LinkIndex: cLink.Index,
+				Scope:     netlink.SCOPE_LINK,
+				Dst:       hostRt,
+			}
+			err = netlink.RouteAdd(rt)
+			require.Nilf(t, err, fmt.Sprintf("%v", err))
+			t.Logf("route %v indx %d, iindx %d added", rt, rt.LinkIndex, rt.ILinkIndex)
+
+			// verify route is migrated.
+			err = routeClient.MigrateRoutesToGw(cLink.Name)
+			require.Nil(t, err)
+			expRoute = strings.Join(strings.Fields(
+				fmt.Sprintf("%s dev %s scope link", hostRt.IP, gwName)), "")
+			output, _ := ExecOutputTrim(fmt.Sprintf("ip route show"))
+			require.Containsf(t, output, expRoute, output)
+			output, _ = ExecOutputTrim(fmt.Sprintf("ip add show %s", gwName))
+			require.Containsf(t, output, ipAddr.String(), output)
+
+			// verify route being removed after unmigrate
+			err = routeClient.UnMigrateRoutesFromGw(hostRt, "")
+			require.Nil(t, err)
+			output, _ = ExecOutputTrim(fmt.Sprintf("ip route show"))
+			require.NotContainsf(t, output, expRoute, output)
+			// note unmigrate does not remove ip addresses given to gw0
+			output, _ = ExecOutputTrim(fmt.Sprintf("ip add show %s", gwName))
+			require.Containsf(t, output, ipAddr.String(), output)
+		}
+		_ = netlink.LinkDel(gwLink)
 	}
 }

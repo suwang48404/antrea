@@ -270,6 +270,8 @@ data:
     # noEncap: Inter-node Pod traffic is not encapsulated, but Pod to outbound traffic is masqueraded.
     #          Underlying network must be capable of supporting Pod traffic across IP subnet.
     # hybrid: noEncap if worker Nodes on same subnet, otherwise encap.
+    # passThrough: Utilizes CNI chaining, the primary CNI is responsible for Pod IPAM and connectivity.
+    #              Antrea performs ingress/egress network services.
     #trafficEncapMode: encap
   antrea-cni.conf: |
     {
@@ -286,7 +288,7 @@ metadata:
   annotations: {}
   labels:
     app: antrea
-  name: antrea-config-4gb24b784b
+  name: antrea-config-fmm86khfdc
   namespace: kube-system
 ---
 apiVersion: v1
@@ -369,7 +371,7 @@ spec:
         key: node-role.kubernetes.io/master
       volumes:
       - configMap:
-          name: antrea-config-4gb24b784b
+          name: antrea-config-fmm86khfdc
         name: antrea-config
 ---
 apiVersion: apiregistration.k8s.io/v1
@@ -527,7 +529,7 @@ spec:
         operator: Exists
       volumes:
       - configMap:
-          name: antrea-config-4gb24b784b
+          name: antrea-config-fmm86khfdc
         name: antrea-config
       - hostPath:
           path: /etc/cni/net.d

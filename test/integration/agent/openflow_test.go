@@ -215,11 +215,11 @@ func testInstallTunnelFlows(t *testing.T, config *testConfig) {
 }
 
 func testInstallServiceFlows(t *testing.T, config *testConfig) {
-	err := c.InstallClusterServiceCIDRFlows(config.serviceCIDR, config.localGateway.ofPort)
+	err := c.InstallClusterServiceCIDRFlows(config.serviceCIDR, config.localGateway.mac, config.localGateway.ofPort)
 	if err != nil {
 		t.Fatalf("Failed to install Openflow entries to skip service CIDR from egress table")
 	}
-	for _, tableFlow := range prepareServiceHelperFlows(*config.serviceCIDR, config.localGateway.ofPort) {
+	for _, tableFlow := range prepareServiceHelperFlows(*config.serviceCIDR, config.localGateway.mac, config.localGateway.ofPort) {
 		ofTestUtils.CheckFlowExists(t, config.bridge, tableFlow.tableID, true, tableFlow.flows)
 	}
 }
@@ -662,13 +662,13 @@ func prepareNodeFlows(tunnelPort uint32, peerSubnet net.IPNet, peerGwIP, peerNod
 	}
 }
 
-func prepareServiceHelperFlows(serviceCIDR net.IPNet, gwOFPort uint32) []expectTableFlows {
+func prepareServiceHelperFlows(serviceCIDR net.IPNet, gwMAC net.HardwareAddr, gwOFPort uint32) []expectTableFlows {
 	return []expectTableFlows{
 		{
 			uint8(40),
 			[]*ofTestUtils.ExpectFlow{
 				{fmt.Sprintf("priority=200,ip,nw_dst=%s", serviceCIDR.String()),
-					fmt.Sprintf("load:0x%x->NXM_NX_REG1[],load:0x1->NXM_NX_REG0[16],resubmit(,105)", gwOFPort),
+					fmt.Sprintf("set_field:%s->eth_dst,load:0x%x->NXM_NX_REG1[],load:0x1->NXM_NX_REG0[16],resubmit(,105)", gwMAC, gwOFPort),
 				},
 			},
 		},

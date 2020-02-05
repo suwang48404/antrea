@@ -38,6 +38,8 @@ import (
 	"github.com/vmware-tanzu/antrea/pkg/agent/config"
 	"github.com/vmware-tanzu/antrea/pkg/agent/interfacestore"
 	"github.com/vmware-tanzu/antrea/pkg/agent/openflow"
+	"github.com/vmware-tanzu/antrea/pkg/agent/route"
+	"github.com/vmware-tanzu/antrea/pkg/agent/util"
 	cnipb "github.com/vmware-tanzu/antrea/pkg/apis/cni/v1beta1"
 	"github.com/vmware-tanzu/antrea/pkg/apis/networking/v1beta1"
 	"github.com/vmware-tanzu/antrea/pkg/cni"
@@ -98,7 +100,12 @@ type CNIServer struct {
 	containerAccess      *containerAccessArbitrator
 	podConfigurator      *podConfigurator
 	// podUpdates is a channel for notifying Pod updates to other components, i.e NetworkPolicyController.
-	podUpdates chan<- v1beta1.PodReference
+	podUpdates        chan<- v1beta1.PodReference
+	networkConfig     *config.NetworkConfig
+	routeClient       route.Client
+	mutex             sync.Mutex
+	initPatchPortChan chan struct{}
+	isL3PassThrough   bool
 }
 
 const (
@@ -144,8 +151,8 @@ func updateResultIfaceConfig(result *current.Result, defaultV4Gateway net.IP) {
 	foundDefaultRoute := false
 	defaultRouteDst := "0.0.0.0/0"
 	if result.Routes != nil {
-		for _, route := range result.Routes {
-			if route.Dst.String() == defaultRouteDst {
+		for _, rt := range result.Routes {
+			if rt.Dst.String() == defaultRouteDst {
 				foundDefaultRoute = true
 				break
 			}
@@ -169,7 +176,9 @@ func (s *CNIServer) loadNetworkConfig(request *cnipb.CniCmdRequest) (*CNIConfig,
 	if err := cnitypes.LoadArgs(request.CniArgs.Args, cniConfig.k8sArgs); err != nil {
 		return cniConfig, err
 	}
-	s.updateLocalIPAMSubnet(cniConfig)
+	if !s.networkConfig.TrafficEncapMode.IsPassThrough() {
+		s.updateLocalIPAMSubnet(cniConfig)
+	}
 	if cniConfig.MTU == 0 {
 		cniConfig.MTU = s.defaultMTU
 	}
@@ -193,6 +202,9 @@ func (s *CNIServer) checkRequestMessage(request *cnipb.CniCmdRequest) (*CNIConfi
 	if !s.isCNIVersionSupported(cniVersion) {
 		klog.Errorf(fmt.Sprintf("Unsupported CNI version [%s], supported CNI versions [%s]", cniVersion, supportedCNIVersions))
 		return cniConfig, s.incompatibleCniVersionResponse(cniVersion)
+	}
+	if s.networkConfig.TrafficEncapMode.IsPassThrough() {
+		return cniConfig, nil
 	}
 	// Find IPAM Service according configuration
 	ipamType := cniConfig.IPAM.Type
@@ -351,6 +363,7 @@ func (s *CNIServer) CmdAdd(ctx context.Context, request *cnipb.CniCmdRequest) (*
 	if response != nil {
 		return response, nil
 	}
+
 	cniVersion := cniConfig.CNIVersion
 	result := &current.Result{CNIVersion: cniVersion}
 	netNS := s.hostNetNsPath(cniConfig.Netns)
@@ -368,6 +381,14 @@ func (s *CNIServer) CmdAdd(ctx context.Context, request *cnipb.CniCmdRequest) (*
 
 	s.containerAccess.lockContainer(cniConfig.ContainerId)
 	defer s.containerAccess.unlockContainer(cniConfig.ContainerId)
+
+	if s.networkConfig.TrafficEncapMode.IsPassThrough() {
+		resp, err := s.interceptAdd(cniConfig)
+		if err == nil {
+			success = true
+		}
+		return resp, err
+	}
 
 	// Request IP Address from IPAM driver
 	ipamResult, err := ipam.ExecIPAMAdd(cniConfig.CniCmdArgs, cniConfig.IPAM.Type)
@@ -401,16 +422,17 @@ func (s *CNIServer) CmdAdd(ctx context.Context, request *cnipb.CniCmdRequest) (*
 
 	result.DNS = cniConfig.DNS
 	var resultBytes bytes.Buffer
-	result.PrintTo(&resultBytes)
+	_ = result.PrintTo(&resultBytes)
 	klog.Infof("CmdAdd succeeded")
 	// mark success as true to avoid rollback
 	success = true
 	return &cnipb.CniCmdResponse{CniResult: resultBytes.Bytes()}, nil
 }
 
-func (s *CNIServer) CmdDel(ctx context.Context, request *cnipb.CniCmdRequest) (
+func (s *CNIServer) CmdDel(_ context.Context, request *cnipb.CniCmdRequest) (
 	*cnipb.CniCmdResponse, error) {
 	klog.Infof("Received CmdDel request %v", request)
+
 	cniConfig, response := s.checkRequestMessage(request)
 	if response != nil {
 		return response, nil
@@ -418,6 +440,10 @@ func (s *CNIServer) CmdDel(ctx context.Context, request *cnipb.CniCmdRequest) (
 
 	s.containerAccess.lockContainer(cniConfig.ContainerId)
 	defer s.containerAccess.unlockContainer(cniConfig.ContainerId)
+
+	if s.networkConfig.TrafficEncapMode.IsPassThrough() {
+		return s.interceptDel(cniConfig)
+	}
 
 	// Release IP to IPAM driver
 	if err := ipam.ExecIPAMDelete(cniConfig.CniCmdArgs, cniConfig.IPAM.Type); err != nil {
@@ -435,9 +461,10 @@ func (s *CNIServer) CmdDel(ctx context.Context, request *cnipb.CniCmdRequest) (
 	return &cnipb.CniCmdResponse{CniResult: []byte("")}, nil
 }
 
-func (s *CNIServer) CmdCheck(ctx context.Context, request *cnipb.CniCmdRequest) (
+func (s *CNIServer) CmdCheck(_ context.Context, request *cnipb.CniCmdRequest) (
 	*cnipb.CniCmdResponse, error) {
 	klog.Infof("Received CmdCheck request %v", request)
+
 	cniConfig, response := s.checkRequestMessage(request)
 	if response != nil {
 		return response, nil
@@ -445,6 +472,10 @@ func (s *CNIServer) CmdCheck(ctx context.Context, request *cnipb.CniCmdRequest) 
 
 	s.containerAccess.lockContainer(cniConfig.ContainerId)
 	defer s.containerAccess.unlockContainer(cniConfig.ContainerId)
+
+	if s.networkConfig.TrafficEncapMode.IsPassThrough() {
+		return s.interceptCheck(cniConfig)
+	}
 
 	if err := ipam.ExecIPAMCheck(cniConfig.CniCmdArgs, cniConfig.IPAM.Type); err != nil {
 		klog.Errorf("Failed to check IPAM configuration: %v", err)
@@ -473,7 +504,13 @@ func New(
 	ifaceStore interfacestore.InterfaceStore,
 	kubeClient clientset.Interface,
 	podUpdates chan<- v1beta1.PodReference,
+	routeClient route.Client,
+	networkConfig *config.NetworkConfig,
 ) *CNIServer {
+	var ch chan struct{} = nil
+	if networkConfig.TrafficEncapMode.IsPassThrough() {
+		ch = make(chan struct{})
+	}
 	return &CNIServer{
 		cniSocket:            cniSocket,
 		supportedCNIVersions: supportedCNIVersionSet,
@@ -483,8 +520,11 @@ func New(
 		defaultMTU:           defaultMTU,
 		kubeClient:           kubeClient,
 		containerAccess:      newContainerAccessArbitrator(),
-		podConfigurator:      newPodConfigurator(ovsBridgeClient, ofClient, ifaceStore, nodeConfig.GatewayConfig.MAC, ovsDatapathType),
+		podConfigurator:      newPodConfigurator(ovsBridgeClient, ofClient, routeClient, ifaceStore, nodeConfig.GatewayConfig.MAC, ovsDatapathType),
 		podUpdates:           podUpdates,
+		networkConfig:        networkConfig,
+		routeClient:          routeClient,
+		initPatchPortChan:    ch,
 	}
 }
 
@@ -500,7 +540,7 @@ func (s *CNIServer) Run(stopCh <-chan struct{}) {
 	defer klog.Info("Shutting down CNI server")
 
 	// remove before bind to avoid "address already in use" errors
-	os.Remove(s.cniSocket)
+	_ = os.Remove(s.cniSocket)
 
 	if err := os.MkdirAll(filepath.Dir(s.cniSocket), 0755); err != nil {
 		klog.Fatalf("Failed to create directory %s: %v", filepath.Dir(s.cniSocket), err)
@@ -521,11 +561,63 @@ func (s *CNIServer) Run(stopCh <-chan struct{}) {
 	<-stopCh
 }
 
+// interceptAdd handles Add request in policy only mode. Another CNI must already
+// be called prior to Antrea CNI to allocate IP and ports. Antrea takes allocated port
+// and hooks it to ovs br-int.
+func (s *CNIServer) interceptAdd(cniConfig *CNIConfig) (*cnipb.CniCmdResponse, error) {
+	_ = s.checkAndConfigurePassThrough(cniConfig.Netns, cniConfig.Ifname)
+
+	klog.Infof("CNI Chaining: add")
+	prevResult, response := s.parsePrevResultFromRequest(cniConfig.NetworkConfig)
+	if response != nil {
+		klog.Infof("Failed to parse prev result for container %s.", cniConfig.ContainerId)
+		return response, nil
+	}
+	podName := string(cniConfig.K8S_POD_NAME)
+	podNamespace := string(cniConfig.K8S_POD_NAMESPACE)
+	result := make([]byte, 0, 0)
+	if err := s.podConfigurator.connectInterceptedInterface(
+		podName,
+		podNamespace,
+		cniConfig.ContainerId,
+		s.hostNetNsPath(cniConfig.Netns),
+		cniConfig.Ifname,
+		prevResult.IPs,
+		s.isL3PassThrough); err != nil {
+		return &cnipb.CniCmdResponse{CniResult: result}, fmt.Errorf("failed to connect container %s to ovs: %w", cniConfig.ContainerId, err)
+	}
+	// Notify the Pod update event to required components.
+	s.podUpdates <- v1beta1.PodReference{Name: podName, Namespace: podNamespace}
+
+	return &cnipb.CniCmdResponse{CniResult: cniConfig.NetworkConfiguration}, nil
+}
+
+func (s *CNIServer) interceptDel(cniConfig *CNIConfig) (*cnipb.CniCmdResponse, error) {
+	// wait for patch port to be configured
+	<-s.initPatchPortChan
+	klog.Infof("CNI Chaining: delete")
+	return &cnipb.CniCmdResponse{CniResult: make([]byte, 0, 0)}, s.podConfigurator.disconnectInterceptedInterface(
+		string(cniConfig.K8S_POD_NAME),
+		string(cniConfig.K8S_POD_NAMESPACE),
+		cniConfig.ContainerId,
+		s.isL3PassThrough)
+}
+
+func (s *CNIServer) interceptCheck(_ *CNIConfig) (*cnipb.CniCmdResponse, error) {
+	<-s.initPatchPortChan
+	klog.Infof("CNI Chaining: check")
+	// TODO, check for host interface setup later
+	return &cnipb.CniCmdResponse{CniResult: make([]byte, 0, 0)}, nil
+}
+
 // reconcile performs startup reconciliation for the CNI server. The CNI server is in charge of
 // installing Pod flows, so as part of this reconciliation process we retrieve the Pod list from the
 // K8s apiserver and replay the necessary flows.
 func (s *CNIServer) reconcile() error {
 	klog.Infof("Reconciliation for CNI server")
+	if s.networkConfig.TrafficEncapMode.IsPassThrough() {
+		_ = s.reconcileAndConfigurePassThrough()
+	}
 	pods, err := s.kubeClient.CoreV1().Pods("").List(metav1.ListOptions{
 		FieldSelector: "spec.nodeName=" + s.nodeConfig.Name,
 	})
@@ -534,6 +626,85 @@ func (s *CNIServer) reconcile() error {
 	}
 
 	return s.podConfigurator.reconcile(pods.Items)
+}
+
+func (s *CNIServer) reconcileAndConfigurePassThrough() error {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+	select {
+	// chan closed, someone has changed setup.
+	case <-s.initPatchPortChan:
+		return nil
+	default:
+	}
+	proceed := s.podConfigurator.ifaceStore.GetInterfaceKeysByType(interfacestore.ContainerInterface)
+	// if there is no known Pod attached, delay the decision l2/l3 decision until Pod attaches.
+	if len(proceed) == 0 {
+		return nil
+	}
+
+	klog.Infof("reconcileAndConfigurePassThrough:")
+	defer close(s.initPatchPortChan)
+	patchPort := s.podConfigurator.ifaceStore.GetInterfaceKeysByType(interfacestore.PatchPortInterface)
+	if len(patchPort) > 0 {
+		return s.configurePassThrough("dummy")
+	}
+	return s.configurePassThrough("")
+}
+
+func (s *CNIServer) checkAndConfigurePassThrough(containerNS, dev string) error {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+	select {
+	// chan closed, someone has changed setup.
+	case <-s.initPatchPortChan:
+		return nil
+	default:
+	}
+	// unblock any pending operations depending on patch port
+	klog.Infof("checkAndConfigurePassThrough:")
+	defer close(s.initPatchPortChan)
+	_, bridge, err := util.GetNSPeerDevBridge(s.hostNetNsPath(containerNS), dev)
+	if err != nil {
+		klog.Fatalf("configurePassThrough get attached bridge: %w", err)
+		return err
+	}
+	return s.configurePassThrough(bridge)
+}
+
+func (s *CNIServer) configurePassThrough(bridge string) error {
+	var patchPort string
+	var err error
+	if len(bridge) == 0 {
+		patchPort = s.nodeConfig.GatewayConfig.Name
+		s.isL3PassThrough = true
+	} else {
+		present := s.podConfigurator.ifaceStore.GetInterfaceKeysByType(interfacestore.PatchPortInterface)
+		if len(present) == 1 {
+			patchPort = present[0]
+			klog.Infof("patch port %s is already created", patchPort)
+		} else {
+			patchPort, err = s.podConfigurator.ovsBridgeClient.CreatePatchPortToBridge(bridge, s.defaultMTU)
+			if err != nil {
+				klog.Fatalf("configurePassThrough create patch port: %w", err)
+				return err
+			}
+			s.podConfigurator.ifaceStore.AddInterface(interfacestore.NewPatchPortInterface(patchPort))
+		}
+	}
+	patchOFPort, err := s.podConfigurator.ovsBridgeClient.GetOFPort(patchPort)
+	if err != nil {
+		klog.Fatalf("configurePassThrough failed to get ofport: %w", err)
+		return err
+	}
+	klog.Infof("Patch port %s created OFPortNum %d", patchPort, patchOFPort)
+	err = s.podConfigurator.ofClient.SetupPatchPortFlows(patchOFPort)
+	if err != nil {
+		klog.Fatalf("configurePassThrough failed setup patch port flows: %w", err)
+		return err
+	}
+	_ = s.routeClient.SetupPassThrough(!s.isL3PassThrough)
+	return nil
 }
 
 func init() {

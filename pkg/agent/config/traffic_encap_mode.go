@@ -25,6 +25,7 @@ const (
 	TrafficEncapModeEncap TrafficEncapModeType = iota
 	TrafficEncapModeNoEncap
 	TrafficEncapModeHybrid
+	TrafficEncapModePassThrough
 	TrafficEncapModeInvalid = -1
 )
 
@@ -33,6 +34,7 @@ var (
 		"Encap",
 		"NoEncap",
 		"Hybrid",
+		"PassThrough",
 	}
 )
 
@@ -52,6 +54,7 @@ func GetTrafficEncapModes() []TrafficEncapModeType {
 		TrafficEncapModeEncap,
 		TrafficEncapModeNoEncap,
 		TrafficEncapModeHybrid,
+		TrafficEncapModePassThrough,
 	}
 }
 
@@ -60,9 +63,14 @@ func (m TrafficEncapModeType) String() string {
 	return modeStrs[m]
 }
 
+// IsPassThrough returns true if TrafficEncapModeType is pass-through.
+func (m TrafficEncapModeType) IsPassThrough() bool {
+	return m == TrafficEncapModePassThrough
+}
+
 // SupportsNoEncap returns true if TrafficEncapModeType supports noEncap.
 func (m TrafficEncapModeType) SupportsNoEncap() bool {
-	return m == TrafficEncapModeNoEncap || m == TrafficEncapModeHybrid
+	return m == TrafficEncapModeNoEncap || m == TrafficEncapModeHybrid || m.IsPassThrough()
 }
 
 // SupportsEncap returns true if TrafficEncapModeType supports encap.

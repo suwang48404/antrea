@@ -55,10 +55,11 @@ func TestSetupRules(t *testing.T) {
 -A ANTREA-POSTROUTING -m mark --mark 0x400/0x400 -m comment --comment "Antrea: masquerade traffic requiring SNAT" -j MASQUERADE`},
 			{table: "mangle", output: `:ANTREA-MANGLE - [0:0]
 -A PREROUTING -m comment --comment "Antrea: jump to Antrea mangle rule" -j ANTREA-MANGLE
--A ANTREA-MANGLE -d 1.1.0.0/16 -i gw0 -m comment --comment "Antrea: mark service traffic" -j MARK --set-xmark 0x800/0x800`},
+-A ANTREA-MANGLE -d 1.1.0.0/16 -i gw0 -m comment --comment "Antrea: mark service traffic" -j MARK --set-xmark 0x800/0x800
+-A ANTREA-MANGLE ! -d 1.1.0.0/16 -i gw0 -m comment --comment "Antrea: unmark post LB service traffic" -j MARK --set-xmark 0x0/0xffffffff`},
 			{table: "raw", output: `:ANTREA-RAW - [0:0]
 -A PREROUTING -m comment --comment "Antrea: jump to Antrea raw rule" -j ANTREA-RAW
--A ANTREA-RAW -i gw0 -m mac --mac-source DE:AD:BE:EF:DE:AD -m comment --comment "Antrea: reentry pod traffic skip conntrack" -j CT --notrack`},
+-A ANTREA-RAW -m mac --mac-source DE:AD:BE:EF:DE:AD -m comment --comment "Antrea: reentry pod traffic skip conntrack" -j CT --notrack`},
 		}
 
 		modes := config.GetTrafficEncapModes()
@@ -88,7 +89,11 @@ func TestSetupRules(t *testing.T) {
 					"bash", "-c", fmt.Sprintf("iptables-save -t %s | grep -i antrea", exp.table),
 				).Output()
 				if err != nil {
-					return fmt.Errorf("error executing iptables-save : %v", err)
+					// no antrea nat chain in pass-through.
+					if mode.IsPassThrough() && exp.table == "nat" {
+						continue
+					}
+					return fmt.Errorf("error executing iptables-save %s: %w", exp.table, err)
 				}
 
 				actualOutput := strings.TrimSpace(string(out))
