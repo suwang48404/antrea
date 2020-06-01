@@ -26,6 +26,8 @@ type AppliedToGroup struct {
 	metav1.ObjectMeta
 	// Pods is a list of Pods selected by this group.
 	Pods []GroupMemberPod
+	// ExternalEntities is a list of ExternalEntities selected by this group.
+	ExternalEntities []GroupMemberExternalEntity
 }
 
 // PodReference represents a Pod Reference.
@@ -56,13 +58,40 @@ type GroupMemberPod struct {
 	Ports []NamedPort
 }
 
+// ExternalEntityReference represents a ExternalEntity Reference.
+type ExternalEntityReference struct {
+	// The name of this ExternalEntity.
+	Name string
+	// The namespace of this ExternalEntity.
+	Namespace string
+}
+
+// ExternalEndpoint represents an external endpoint.
+type ExternalEndpoint struct {
+	// IP is the IP address of the ExternalEndpoint.
+	IP IPAddress
+	// Ports is the list NamedPort of the ExternalEndpoint.
+	Ports []NamedPort
+}
+
+// GroupMemberExternalEntity represents an ExternalEntity related member to be populated in Groups.
+type GroupMemberExternalEntity struct {
+	// ExternalEntity maintains the reference to the ExternalEntity.
+	ExternalEntity *ExternalEntityReference
+
+	// ExternalEndpoints maintains a list of ExternalEndPoints associated with this ExternalEntity.
+	ExternalEndpoints []ExternalEndpoint
+}
+
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 // AppliedToGroupPatch describes the incremental update of an AppliedToGroup.
 type AppliedToGroupPatch struct {
 	metav1.TypeMeta
 	metav1.ObjectMeta
-	AddedPods   []GroupMemberPod
-	RemovedPods []GroupMemberPod
+	AddedPods               []GroupMemberPod
+	RemovedPods             []GroupMemberPod
+	AddedExternalEntities   []GroupMemberExternalEntity
+	RemovedExternalEntities []GroupMemberExternalEntity
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -80,6 +109,8 @@ type AddressGroup struct {
 	metav1.ObjectMeta
 	// Pods is a list of Pods selected by this group.
 	Pods []GroupMemberPod
+	// ExternalEntities is a list of ExternalEntities selected by this group.
+	ExternalEntities []GroupMemberExternalEntity
 }
 
 // IPAddress describes a single IP address. Either an IPv4 or IPv6 address must be set.
@@ -96,8 +127,10 @@ type IPNet struct {
 type AddressGroupPatch struct {
 	metav1.TypeMeta
 	metav1.ObjectMeta
-	AddedPods   []GroupMemberPod
-	RemovedPods []GroupMemberPod
+	AddedPods               []GroupMemberPod
+	RemovedPods             []GroupMemberPod
+	AddedExternalEntities   []GroupMemberExternalEntity
+	RemovedExternalEntities []GroupMemberExternalEntity
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

@@ -210,10 +210,94 @@ func (m *AppliedToGroupPatch) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_AppliedToGroupPatch proto.InternalMessageInfo
 
+func (m *ExternalEndpoint) Reset()      { *m = ExternalEndpoint{} }
+func (*ExternalEndpoint) ProtoMessage() {}
+func (*ExternalEndpoint) Descriptor() ([]byte, []int) {
+	return fileDescriptor_da8f95e0f1c69434, []int{6}
+}
+func (m *ExternalEndpoint) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *ExternalEndpoint) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	b = b[:cap(b)]
+	n, err := m.MarshalToSizedBuffer(b)
+	if err != nil {
+		return nil, err
+	}
+	return b[:n], nil
+}
+func (m *ExternalEndpoint) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ExternalEndpoint.Merge(m, src)
+}
+func (m *ExternalEndpoint) XXX_Size() int {
+	return m.Size()
+}
+func (m *ExternalEndpoint) XXX_DiscardUnknown() {
+	xxx_messageInfo_ExternalEndpoint.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ExternalEndpoint proto.InternalMessageInfo
+
+func (m *ExternalEntityReference) Reset()      { *m = ExternalEntityReference{} }
+func (*ExternalEntityReference) ProtoMessage() {}
+func (*ExternalEntityReference) Descriptor() ([]byte, []int) {
+	return fileDescriptor_da8f95e0f1c69434, []int{7}
+}
+func (m *ExternalEntityReference) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *ExternalEntityReference) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	b = b[:cap(b)]
+	n, err := m.MarshalToSizedBuffer(b)
+	if err != nil {
+		return nil, err
+	}
+	return b[:n], nil
+}
+func (m *ExternalEntityReference) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ExternalEntityReference.Merge(m, src)
+}
+func (m *ExternalEntityReference) XXX_Size() int {
+	return m.Size()
+}
+func (m *ExternalEntityReference) XXX_DiscardUnknown() {
+	xxx_messageInfo_ExternalEntityReference.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ExternalEntityReference proto.InternalMessageInfo
+
+func (m *GroupMemberExternalEntity) Reset()      { *m = GroupMemberExternalEntity{} }
+func (*GroupMemberExternalEntity) ProtoMessage() {}
+func (*GroupMemberExternalEntity) Descriptor() ([]byte, []int) {
+	return fileDescriptor_da8f95e0f1c69434, []int{8}
+}
+func (m *GroupMemberExternalEntity) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *GroupMemberExternalEntity) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	b = b[:cap(b)]
+	n, err := m.MarshalToSizedBuffer(b)
+	if err != nil {
+		return nil, err
+	}
+	return b[:n], nil
+}
+func (m *GroupMemberExternalEntity) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GroupMemberExternalEntity.Merge(m, src)
+}
+func (m *GroupMemberExternalEntity) XXX_Size() int {
+	return m.Size()
+}
+func (m *GroupMemberExternalEntity) XXX_DiscardUnknown() {
+	xxx_messageInfo_GroupMemberExternalEntity.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GroupMemberExternalEntity proto.InternalMessageInfo
+
 func (m *GroupMemberPod) Reset()      { *m = GroupMemberPod{} }
 func (*GroupMemberPod) ProtoMessage() {}
 func (*GroupMemberPod) Descriptor() ([]byte, []int) {
-	return fileDescriptor_da8f95e0f1c69434, []int{6}
+	return fileDescriptor_da8f95e0f1c69434, []int{9}
 }
 func (m *GroupMemberPod) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -241,7 +325,7 @@ var xxx_messageInfo_GroupMemberPod proto.InternalMessageInfo
 func (m *IPBlock) Reset()      { *m = IPBlock{} }
 func (*IPBlock) ProtoMessage() {}
 func (*IPBlock) Descriptor() ([]byte, []int) {
-	return fileDescriptor_da8f95e0f1c69434, []int{7}
+	return fileDescriptor_da8f95e0f1c69434, []int{10}
 }
 func (m *IPBlock) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -269,7 +353,7 @@ var xxx_messageInfo_IPBlock proto.InternalMessageInfo
 func (m *IPNet) Reset()      { *m = IPNet{} }
 func (*IPNet) ProtoMessage() {}
 func (*IPNet) Descriptor() ([]byte, []int) {
-	return fileDescriptor_da8f95e0f1c69434, []int{8}
+	return fileDescriptor_da8f95e0f1c69434, []int{11}
 }
 func (m *IPNet) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -297,7 +381,7 @@ var xxx_messageInfo_IPNet proto.InternalMessageInfo
 func (m *NamedPort) Reset()      { *m = NamedPort{} }
 func (*NamedPort) ProtoMessage() {}
 func (*NamedPort) Descriptor() ([]byte, []int) {
-	return fileDescriptor_da8f95e0f1c69434, []int{9}
+	return fileDescriptor_da8f95e0f1c69434, []int{12}
 }
 func (m *NamedPort) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -325,7 +409,7 @@ var xxx_messageInfo_NamedPort proto.InternalMessageInfo
 func (m *NetworkPolicy) Reset()      { *m = NetworkPolicy{} }
 func (*NetworkPolicy) ProtoMessage() {}
 func (*NetworkPolicy) Descriptor() ([]byte, []int) {
-	return fileDescriptor_da8f95e0f1c69434, []int{10}
+	return fileDescriptor_da8f95e0f1c69434, []int{13}
 }
 func (m *NetworkPolicy) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -353,7 +437,7 @@ var xxx_messageInfo_NetworkPolicy proto.InternalMessageInfo
 func (m *NetworkPolicyList) Reset()      { *m = NetworkPolicyList{} }
 func (*NetworkPolicyList) ProtoMessage() {}
 func (*NetworkPolicyList) Descriptor() ([]byte, []int) {
-	return fileDescriptor_da8f95e0f1c69434, []int{11}
+	return fileDescriptor_da8f95e0f1c69434, []int{14}
 }
 func (m *NetworkPolicyList) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -381,7 +465,7 @@ var xxx_messageInfo_NetworkPolicyList proto.InternalMessageInfo
 func (m *NetworkPolicyPeer) Reset()      { *m = NetworkPolicyPeer{} }
 func (*NetworkPolicyPeer) ProtoMessage() {}
 func (*NetworkPolicyPeer) Descriptor() ([]byte, []int) {
-	return fileDescriptor_da8f95e0f1c69434, []int{12}
+	return fileDescriptor_da8f95e0f1c69434, []int{15}
 }
 func (m *NetworkPolicyPeer) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -409,7 +493,7 @@ var xxx_messageInfo_NetworkPolicyPeer proto.InternalMessageInfo
 func (m *NetworkPolicyRule) Reset()      { *m = NetworkPolicyRule{} }
 func (*NetworkPolicyRule) ProtoMessage() {}
 func (*NetworkPolicyRule) Descriptor() ([]byte, []int) {
-	return fileDescriptor_da8f95e0f1c69434, []int{13}
+	return fileDescriptor_da8f95e0f1c69434, []int{16}
 }
 func (m *NetworkPolicyRule) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -437,7 +521,7 @@ var xxx_messageInfo_NetworkPolicyRule proto.InternalMessageInfo
 func (m *PodReference) Reset()      { *m = PodReference{} }
 func (*PodReference) ProtoMessage() {}
 func (*PodReference) Descriptor() ([]byte, []int) {
-	return fileDescriptor_da8f95e0f1c69434, []int{14}
+	return fileDescriptor_da8f95e0f1c69434, []int{17}
 }
 func (m *PodReference) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -465,7 +549,7 @@ var xxx_messageInfo_PodReference proto.InternalMessageInfo
 func (m *Service) Reset()      { *m = Service{} }
 func (*Service) ProtoMessage() {}
 func (*Service) Descriptor() ([]byte, []int) {
-	return fileDescriptor_da8f95e0f1c69434, []int{15}
+	return fileDescriptor_da8f95e0f1c69434, []int{18}
 }
 func (m *Service) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -497,6 +581,9 @@ func init() {
 	proto.RegisterType((*AppliedToGroup)(nil), "github.com.vmware_tanzu.antrea.pkg.apis.networking.v1beta1.AppliedToGroup")
 	proto.RegisterType((*AppliedToGroupList)(nil), "github.com.vmware_tanzu.antrea.pkg.apis.networking.v1beta1.AppliedToGroupList")
 	proto.RegisterType((*AppliedToGroupPatch)(nil), "github.com.vmware_tanzu.antrea.pkg.apis.networking.v1beta1.AppliedToGroupPatch")
+	proto.RegisterType((*ExternalEndpoint)(nil), "github.com.vmware_tanzu.antrea.pkg.apis.networking.v1beta1.ExternalEndpoint")
+	proto.RegisterType((*ExternalEntityReference)(nil), "github.com.vmware_tanzu.antrea.pkg.apis.networking.v1beta1.ExternalEntityReference")
+	proto.RegisterType((*GroupMemberExternalEntity)(nil), "github.com.vmware_tanzu.antrea.pkg.apis.networking.v1beta1.GroupMemberExternalEntity")
 	proto.RegisterType((*GroupMemberPod)(nil), "github.com.vmware_tanzu.antrea.pkg.apis.networking.v1beta1.GroupMemberPod")
 	proto.RegisterType((*IPBlock)(nil), "github.com.vmware_tanzu.antrea.pkg.apis.networking.v1beta1.IPBlock")
 	proto.RegisterType((*IPNet)(nil), "github.com.vmware_tanzu.antrea.pkg.apis.networking.v1beta1.IPNet")
@@ -514,75 +601,86 @@ func init() {
 }
 
 var fileDescriptor_da8f95e0f1c69434 = []byte{
-	// 1076 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xec, 0x57, 0x4f, 0x6f, 0xdc, 0x44,
-	0x14, 0xcf, 0x78, 0xb3, 0x4d, 0x76, 0xb2, 0x69, 0x9b, 0x09, 0x87, 0x55, 0x84, 0xbc, 0x91, 0xb9,
-	0xe4, 0x12, 0x9b, 0x94, 0x0a, 0x22, 0x04, 0x87, 0xb8, 0x2d, 0xb0, 0x55, 0x93, 0x5a, 0xd3, 0x9e,
-	0x10, 0x12, 0x4c, 0xec, 0xc9, 0x66, 0x9a, 0xb5, 0xc7, 0x8c, 0x67, 0xb7, 0x2d, 0x5c, 0xe0, 0x82,
-	0xc4, 0x09, 0x3e, 0x02, 0x07, 0xbe, 0x07, 0xd7, 0x1c, 0x7b, 0x2c, 0x97, 0xa5, 0xd9, 0x7e, 0x07,
-	0x84, 0x72, 0x42, 0x1e, 0x8f, 0xd7, 0x76, 0xa2, 0x25, 0x88, 0x5d, 0xf6, 0x80, 0x38, 0x25, 0x33,
-	0xf3, 0xde, 0xef, 0xf7, 0xfe, 0xcc, 0xfb, 0x8d, 0x17, 0xde, 0xef, 0x32, 0x79, 0xdc, 0x3f, 0xb4,
-	0x7d, 0x1e, 0x3a, 0x83, 0xf0, 0x29, 0x11, 0x74, 0x5b, 0x92, 0xe8, 0xab, 0xbe, 0x43, 0x22, 0x29,
-	0x28, 0x71, 0xe2, 0x93, 0xae, 0x43, 0x62, 0x96, 0x38, 0x11, 0x95, 0x4f, 0xb9, 0x38, 0x61, 0x51,
-	0xd7, 0x19, 0xec, 0x1c, 0x52, 0x49, 0x76, 0x9c, 0x2e, 0x8d, 0xa8, 0x20, 0x92, 0x06, 0x76, 0x2c,
-	0xb8, 0xe4, 0xe8, 0xfd, 0x02, 0xcb, 0xce, 0xb0, 0x3e, 0x57, 0x58, 0x76, 0x86, 0x65, 0xc7, 0x27,
-	0x5d, 0x3b, 0xc5, 0xb2, 0x0b, 0x2c, 0x5b, 0x63, 0x6d, 0x6c, 0x97, 0xe2, 0xe8, 0xf2, 0x2e, 0x77,
-	0x14, 0xe4, 0x61, 0xff, 0x48, 0xad, 0xd4, 0x42, 0xfd, 0x97, 0x51, 0x6d, 0xdc, 0x3e, 0xd9, 0x4d,
-	0x6c, 0xc6, 0xd3, 0xd0, 0x42, 0xe2, 0x1f, 0xb3, 0x88, 0x8a, 0xe7, 0x45, 0xac, 0x21, 0x95, 0xc4,
-	0x19, 0x5c, 0x0a, 0x70, 0xc3, 0x99, 0xe4, 0x25, 0xfa, 0x91, 0x64, 0x21, 0xbd, 0xe4, 0xf0, 0xee,
-	0x55, 0x0e, 0x89, 0x7f, 0x4c, 0x43, 0x72, 0xc9, 0xef, 0x9d, 0x49, 0x7e, 0x7d, 0xc9, 0x7a, 0x0e,
-	0x8b, 0x64, 0x22, 0xc5, 0x45, 0x27, 0x6b, 0x08, 0x60, 0x73, 0x2f, 0x08, 0x04, 0x4d, 0x92, 0x8f,
-	0x05, 0xef, 0xc7, 0xe8, 0x0b, 0xb8, 0x9c, 0x66, 0x12, 0x10, 0x49, 0x5a, 0x60, 0x13, 0x6c, 0xad,
-	0xdc, 0x7a, 0xdb, 0xce, 0x80, 0xed, 0x32, 0x70, 0x51, 0xd7, 0xd4, 0xda, 0x1e, 0xec, 0xd8, 0x0f,
-	0x0f, 0x9f, 0x50, 0x5f, 0xee, 0x53, 0x49, 0x5c, 0x74, 0x3a, 0x6c, 0x2f, 0x8c, 0x86, 0x6d, 0x58,
-	0xec, 0xe1, 0x31, 0x2a, 0xea, 0xc1, 0xc5, 0x98, 0x07, 0x49, 0xcb, 0xd8, 0xac, 0x6d, 0xad, 0xdc,
-	0xba, 0x6f, 0xff, 0xf3, 0x06, 0xda, 0x2a, 0xe4, 0x7d, 0x1a, 0x1e, 0x52, 0xe1, 0xf1, 0xc0, 0x6d,
-	0x6a, 0xde, 0x45, 0x8f, 0x07, 0x09, 0x56, 0x2c, 0xd6, 0x6f, 0x00, 0xde, 0x2c, 0x27, 0xf8, 0x80,
-	0x25, 0x12, 0x7d, 0x76, 0x29, 0x49, 0xfb, 0xef, 0x25, 0x99, 0x7a, 0xab, 0x14, 0x6f, 0x6a, 0xaa,
-	0xe5, 0x7c, 0xa7, 0x94, 0x60, 0x08, 0xeb, 0x4c, 0xd2, 0x30, 0xcf, 0xf0, 0x93, 0x69, 0x32, 0x2c,
-	0x87, 0xee, 0xae, 0x6a, 0xd2, 0x7a, 0x27, 0x85, 0xc7, 0x19, 0x8b, 0xf5, 0xbb, 0x01, 0xd7, 0xca,
-	0x66, 0x1e, 0x91, 0xfe, 0xf1, 0x1c, 0xfa, 0xf8, 0x35, 0x6c, 0x90, 0x20, 0xa0, 0x81, 0xf7, 0xef,
-	0x34, 0x73, 0x4d, 0x93, 0x37, 0xf6, 0x72, 0x12, 0x5c, 0xf0, 0xa1, 0x6f, 0x01, 0x5c, 0x11, 0x34,
-	0xe4, 0x03, 0xcd, 0x5f, 0x9b, 0x39, 0xff, 0xba, 0xe6, 0x5f, 0xc1, 0x05, 0x0d, 0x2e, 0x73, 0x5a,
-	0xaf, 0x00, 0xbc, 0xbe, 0x17, 0xc7, 0x3d, 0x46, 0x83, 0xc7, 0xfc, 0xbf, 0x39, 0x3d, 0xaf, 0x01,
-	0x44, 0xd5, 0x14, 0xe7, 0x30, 0x3f, 0xbc, 0x3a, 0x3f, 0x53, 0xe5, 0x58, 0x0d, 0x7e, 0xc2, 0x04,
-	0xfd, 0x61, 0xc0, 0xf5, 0xaa, 0xe1, 0xff, 0x33, 0x34, 0xa7, 0x19, 0xfa, 0xce, 0x80, 0xd7, 0xab,
-	0x4e, 0xc8, 0x87, 0xb5, 0x98, 0x07, 0xba, 0xe0, 0x53, 0x89, 0xa7, 0xc7, 0x03, 0x4c, 0x8f, 0xa8,
-	0xa0, 0x91, 0x4f, 0xdd, 0xa5, 0xd1, 0xb0, 0x5d, 0x4b, 0x77, 0x52, 0x74, 0xf4, 0x16, 0x34, 0x58,
-	0xdc, 0x32, 0x36, 0xc1, 0x56, 0xd3, 0x5d, 0x1f, 0x0d, 0xdb, 0x46, 0xc7, 0x3b, 0x1f, 0xb6, 0x1b,
-	0x1d, 0x4f, 0x2b, 0x29, 0x36, 0x58, 0x8c, 0x9e, 0xc0, 0x7a, 0xcc, 0x85, 0xcc, 0x2b, 0x73, 0x6f,
-	0x9a, 0x58, 0x0e, 0x48, 0x98, 0xa6, 0x2c, 0x64, 0x71, 0x07, 0xd3, 0x55, 0x82, 0x33, 0x0a, 0xeb,
-	0x57, 0x00, 0x97, 0x3a, 0x9e, 0xdb, 0xe3, 0xfe, 0x09, 0xf2, 0xe1, 0xa2, 0xcf, 0x02, 0xa1, 0x4b,
-	0xb0, 0x37, 0x0d, 0x6d, 0xc7, 0x3b, 0xa0, 0xb2, 0x18, 0xed, 0x3b, 0x9d, 0xbb, 0x18, 0x2b, 0x70,
-	0xc4, 0xe0, 0x35, 0xfa, 0xcc, 0xa7, 0xb1, 0xd4, 0xf7, 0x6e, 0x06, 0x34, 0xd7, 0x35, 0xcd, 0xb5,
-	0x7b, 0x0a, 0x18, 0x6b, 0x02, 0xeb, 0x08, 0xd6, 0x95, 0x81, 0xae, 0x3a, 0xf8, 0xeb, 0xaa, 0xef,
-	0xc2, 0x66, 0x2c, 0xe8, 0x11, 0x7b, 0xf6, 0x80, 0x46, 0x5d, 0x79, 0xac, 0x9a, 0x54, 0x77, 0xdf,
-	0xd0, 0xd8, 0x4d, 0xaf, 0x74, 0x86, 0x2b, 0x96, 0xd6, 0xf7, 0x00, 0x36, 0xc6, 0x75, 0x46, 0x9b,
-	0xa9, 0x52, 0x0a, 0xa9, 0xe8, 0xea, 0x65, 0x75, 0x13, 0x12, 0xab, 0x93, 0xd4, 0x22, 0x22, 0x21,
-	0x55, 0x0c, 0x8d, 0xc2, 0x22, 0x85, 0xc0, 0xea, 0x04, 0xed, 0xc2, 0x65, 0xf5, 0x9d, 0xe4, 0xf3,
-	0x5e, 0xab, 0xa6, 0xac, 0xde, 0xcc, 0x85, 0xcb, 0xd3, 0xfb, 0xe7, 0xa5, 0xff, 0xf1, 0xd8, 0xda,
-	0xfa, 0xd9, 0x80, 0xab, 0x07, 0x59, 0xa1, 0x3c, 0xde, 0x63, 0xfe, 0xf3, 0x39, 0xa8, 0x89, 0x80,
-	0x75, 0xd1, 0xef, 0xd1, 0x5c, 0x49, 0xf6, 0xa7, 0xba, 0xaf, 0xe5, 0xd8, 0x71, 0xbf, 0x47, 0x8b,
-	0x7b, 0x9b, 0xae, 0x12, 0x9c, 0x51, 0xa1, 0x0f, 0xe1, 0x0d, 0x52, 0x91, 0xce, 0x6c, 0x5a, 0x1a,
-	0xaa, 0xbf, 0x37, 0xaa, 0xaa, 0x9a, 0xe0, 0x8b, 0xb6, 0xd6, 0x19, 0x80, 0x6b, 0x15, 0xaa, 0x39,
-	0xbc, 0x2f, 0x51, 0xf5, 0x7d, 0xe9, 0xcc, 0xac, 0x4c, 0x13, 0x9e, 0x97, 0x5f, 0x2e, 0xe6, 0xe8,
-	0x51, 0x2a, 0xd0, 0x7b, 0x70, 0x95, 0x94, 0xbe, 0xda, 0x92, 0x16, 0x50, 0x65, 0x5b, 0x1b, 0x0d,
-	0xdb, 0xab, 0xe5, 0xcf, 0xb9, 0x04, 0x57, 0xed, 0xd0, 0x97, 0x70, 0x99, 0xc5, 0x4a, 0x28, 0xf2,
-	0x0c, 0xee, 0x4c, 0x37, 0xba, 0x0a, 0xab, 0xa8, 0x98, 0xde, 0x48, 0xf0, 0x98, 0xc6, 0xfa, 0xa9,
-	0x76, 0x21, 0x83, 0xf4, 0x0a, 0xa0, 0x0f, 0x60, 0x23, 0x60, 0x82, 0xfa, 0x92, 0xf1, 0x48, 0xb5,
-	0xa9, 0xe1, 0x9a, 0xf9, 0x83, 0x73, 0x37, 0x3f, 0x38, 0x2f, 0x2f, 0x70, 0xe1, 0x80, 0x38, 0x5c,
-	0x3c, 0x12, 0x3c, 0x54, 0xc3, 0x37, 0xcb, 0xbb, 0x9a, 0x16, 0xb7, 0x98, 0xe5, 0x8f, 0x04, 0x0f,
-	0xb1, 0x22, 0x42, 0x0c, 0x1a, 0x92, 0xab, 0x29, 0x9e, 0x39, 0x1d, 0xd4, 0x74, 0xc6, 0x63, 0x8e,
-	0x0d, 0xc9, 0xd3, 0x16, 0x25, 0x54, 0x0c, 0x98, 0x4f, 0x93, 0xd6, 0xe2, 0xf4, 0x2d, 0x7a, 0x94,
-	0x61, 0x15, 0x2d, 0xd2, 0x1b, 0x09, 0x1e, 0xd3, 0x58, 0x04, 0x36, 0xcb, 0xcf, 0xdd, 0x58, 0xdb,
-	0xc0, 0x44, 0x6d, 0x73, 0x60, 0x23, 0xfd, 0x9b, 0xc4, 0xc4, 0xcf, 0x25, 0x70, 0xfc, 0xbd, 0x70,
-	0x90, 0x1f, 0xe0, 0xc2, 0xc6, 0xfa, 0x01, 0xc0, 0x25, 0xcd, 0x8c, 0x6e, 0x97, 0x84, 0x31, 0xa3,
-	0x68, 0x5d, 0x2d, 0x8a, 0xe8, 0x40, 0x4b, 0xb2, 0x71, 0x85, 0xfc, 0xa5, 0xbf, 0x58, 0xed, 0xec,
-	0x17, 0xab, 0xdd, 0x89, 0xe4, 0x43, 0xf1, 0x48, 0x0a, 0x16, 0x75, 0xdd, 0xe5, 0xaa, 0x80, 0xbb,
-	0xdb, 0xa7, 0x67, 0xe6, 0xc2, 0x8b, 0x33, 0x73, 0xe1, 0xe5, 0x99, 0xb9, 0xf0, 0xcd, 0xc8, 0x04,
-	0xa7, 0x23, 0x13, 0xbc, 0x18, 0x99, 0xe0, 0xe5, 0xc8, 0x04, 0xaf, 0x46, 0x26, 0xf8, 0xf1, 0xb5,
-	0xb9, 0xf0, 0xe9, 0x92, 0xae, 0xe3, 0x9f, 0x01, 0x00, 0x00, 0xff, 0xff, 0x5a, 0x41, 0xed, 0x9c,
-	0x78, 0x10, 0x00, 0x00,
+	// 1260 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xec, 0x58, 0xcf, 0x6f, 0xe3, 0x44,
+	0x14, 0xae, 0x9d, 0x64, 0xdb, 0x4c, 0xd3, 0x6e, 0x33, 0x65, 0xd5, 0x6c, 0x05, 0x49, 0x65, 0x2e,
+	0x7b, 0xa9, 0x4d, 0x97, 0x15, 0x54, 0x08, 0x0e, 0xcd, 0x6e, 0x81, 0xac, 0xda, 0xae, 0x35, 0x5d,
+	0x2e, 0x08, 0x09, 0x5c, 0x7b, 0x9a, 0xce, 0x36, 0xf6, 0x98, 0xf1, 0x24, 0xdb, 0xc2, 0x05, 0x2e,
+	0x48, 0x9c, 0x96, 0x0b, 0x27, 0x2e, 0x48, 0x70, 0xe2, 0xc4, 0x7f, 0xc0, 0x09, 0xa9, 0xc7, 0x3d,
+	0xa1, 0x72, 0x09, 0x34, 0xfb, 0x5f, 0x54, 0x08, 0x21, 0x8f, 0x27, 0xb1, 0x9d, 0x34, 0x6a, 0x45,
+	0xd2, 0x1e, 0x56, 0x3d, 0x35, 0x9e, 0x79, 0xf3, 0x7d, 0xdf, 0xbc, 0x5f, 0x7e, 0x2e, 0x78, 0x58,
+	0x27, 0x7c, 0xaf, 0xb9, 0xa3, 0xdb, 0xd4, 0x35, 0x5a, 0xee, 0x53, 0x8b, 0xe1, 0x65, 0x6e, 0x79,
+	0x5f, 0x34, 0x0d, 0xcb, 0xe3, 0x0c, 0x5b, 0x86, 0xbf, 0x5f, 0x37, 0x2c, 0x9f, 0x04, 0x86, 0x87,
+	0xf9, 0x53, 0xca, 0xf6, 0x89, 0x57, 0x37, 0x5a, 0x2b, 0x3b, 0x98, 0x5b, 0x2b, 0x46, 0x1d, 0x7b,
+	0x98, 0x59, 0x1c, 0x3b, 0xba, 0xcf, 0x28, 0xa7, 0xf0, 0x9d, 0x18, 0x4b, 0x8f, 0xb0, 0x3e, 0x15,
+	0x58, 0x7a, 0x84, 0xa5, 0xfb, 0xfb, 0x75, 0x3d, 0xc4, 0xd2, 0x63, 0x2c, 0x5d, 0x62, 0x2d, 0x2e,
+	0x27, 0x74, 0xd4, 0x69, 0x9d, 0x1a, 0x02, 0x72, 0xa7, 0xb9, 0x2b, 0x9e, 0xc4, 0x83, 0xf8, 0x15,
+	0x51, 0x2d, 0xde, 0xdb, 0x5f, 0x0d, 0x74, 0x42, 0x43, 0x69, 0xae, 0x65, 0xef, 0x11, 0x0f, 0xb3,
+	0xc3, 0x58, 0xab, 0x8b, 0xb9, 0x65, 0xb4, 0x06, 0x04, 0x2e, 0x1a, 0xc3, 0x4e, 0xb1, 0xa6, 0xc7,
+	0x89, 0x8b, 0x07, 0x0e, 0xbc, 0x75, 0xde, 0x81, 0xc0, 0xde, 0xc3, 0xae, 0x35, 0x70, 0xee, 0xcd,
+	0x61, 0xe7, 0x9a, 0x9c, 0x34, 0x0c, 0xe2, 0xf1, 0x80, 0xb3, 0xfe, 0x43, 0xda, 0x3f, 0x2a, 0x28,
+	0xac, 0x39, 0x0e, 0xc3, 0x41, 0xf0, 0x01, 0xa3, 0x4d, 0x1f, 0x7e, 0x06, 0xa6, 0xc2, 0x9b, 0x38,
+	0x16, 0xb7, 0x4a, 0xca, 0x92, 0x72, 0x67, 0xfa, 0xee, 0x1b, 0x7a, 0x04, 0xac, 0x27, 0x81, 0x63,
+	0xbf, 0x86, 0xd6, 0x7a, 0x6b, 0x45, 0x7f, 0xb4, 0xf3, 0x04, 0xdb, 0x7c, 0x13, 0x73, 0xab, 0x0a,
+	0x8f, 0xda, 0x95, 0x89, 0x4e, 0xbb, 0x02, 0xe2, 0x35, 0xd4, 0x43, 0x85, 0x0d, 0x90, 0xf5, 0xa9,
+	0x13, 0x94, 0xd4, 0xa5, 0xcc, 0x9d, 0xe9, 0xbb, 0x0f, 0xf5, 0xff, 0x1f, 0x40, 0x5d, 0x48, 0xde,
+	0xc4, 0xee, 0x0e, 0x66, 0x26, 0x75, 0xaa, 0x05, 0xc9, 0x9b, 0x35, 0xa9, 0x13, 0x20, 0xc1, 0x02,
+	0x7f, 0x50, 0xc0, 0x1c, 0x3e, 0xe0, 0x98, 0x79, 0x56, 0x63, 0xdd, 0xe3, 0x84, 0x13, 0x1c, 0x94,
+	0x32, 0x82, 0xfa, 0xa3, 0x31, 0x51, 0xaf, 0x27, 0xe1, 0x0f, 0xab, 0x25, 0xa9, 0x62, 0x6e, 0xbd,
+	0x8f, 0x16, 0x0d, 0x08, 0xd1, 0xfe, 0x52, 0xc0, 0x5c, 0xd2, 0xfd, 0x1b, 0x24, 0xe0, 0xf0, 0x93,
+	0x81, 0x10, 0xe8, 0x17, 0x0b, 0x41, 0x78, 0x5a, 0x04, 0x60, 0x4e, 0x4a, 0x98, 0xea, 0xae, 0x24,
+	0xdc, 0xef, 0x82, 0x1c, 0xe1, 0xd8, 0xed, 0xfa, 0xff, 0xc3, 0x51, 0x9c, 0x90, 0x94, 0x5e, 0x9d,
+	0x91, 0xa4, 0xb9, 0x5a, 0x08, 0x8f, 0x22, 0x16, 0xed, 0x8f, 0x1c, 0x28, 0x26, 0xcd, 0x4c, 0x8b,
+	0xdb, 0x7b, 0x57, 0x90, 0x65, 0x5f, 0x82, 0xbc, 0xe5, 0x38, 0xd8, 0x31, 0x2f, 0x27, 0xd5, 0x8a,
+	0x92, 0x3c, 0xbf, 0xd6, 0x25, 0x41, 0x31, 0x1f, 0xfc, 0x5a, 0x01, 0xd3, 0x0c, 0xbb, 0xb4, 0x25,
+	0xf9, 0x33, 0x63, 0xe7, 0x9f, 0x97, 0xfc, 0xd3, 0x28, 0xa6, 0x41, 0x49, 0x4e, 0xf8, 0x8b, 0x02,
+	0x6e, 0x09, 0x45, 0xfd, 0x69, 0x58, 0xca, 0x5e, 0x66, 0xf6, 0xbf, 0x26, 0x85, 0xdd, 0x5a, 0x3b,
+	0x8b, 0x1b, 0x9d, 0x2d, 0x09, 0xfe, 0xaa, 0x80, 0x05, 0x29, 0x7e, 0x40, 0x6e, 0xee, 0x32, 0xe5,
+	0x56, 0xa4, 0xdc, 0x05, 0x74, 0x36, 0x3b, 0x1a, 0x26, 0x4b, 0xfb, 0x57, 0x05, 0xb3, 0x6b, 0xbe,
+	0xdf, 0x20, 0xd8, 0x79, 0x4c, 0xaf, 0x7b, 0xe7, 0xd5, 0xf7, 0xce, 0x17, 0x0a, 0x80, 0xe9, 0x00,
+	0x5c, 0x41, 0xf7, 0xa4, 0xe9, 0xee, 0x39, 0x52, 0x04, 0xd2, 0xe2, 0x87, 0xf4, 0xcf, 0xe3, 0x1c,
+	0x98, 0x4f, 0x1b, 0x5e, 0x77, 0xd0, 0xeb, 0x0e, 0xfa, 0x52, 0x74, 0xd0, 0x9f, 0x14, 0x90, 0xa8,
+	0x73, 0xc7, 0xa7, 0xc4, 0xe3, 0xf0, 0x75, 0xa0, 0x12, 0x5f, 0x64, 0x74, 0xa1, 0x3a, 0xdf, 0x69,
+	0x57, 0xd4, 0x9a, 0x79, 0xda, 0xae, 0xe4, 0x6b, 0xa6, 0x1c, 0x22, 0x90, 0x4a, 0x7c, 0xf8, 0x04,
+	0xe4, 0x7c, 0xca, 0x78, 0x37, 0x2d, 0xd7, 0x47, 0xb9, 0xd9, 0x96, 0xe5, 0x86, 0xf1, 0x66, 0x3c,
+	0x2e, 0xc0, 0xf0, 0x29, 0x40, 0x11, 0x85, 0xd6, 0x00, 0x0b, 0xe9, 0x1b, 0x23, 0xbc, 0x8b, 0x19,
+	0xf6, 0x6c, 0x0c, 0x97, 0x40, 0xd6, 0xb3, 0x5c, 0x2c, 0xd4, 0xe6, 0xe3, 0x0e, 0x1a, 0x22, 0x22,
+	0xb1, 0x03, 0x0d, 0x90, 0x0f, 0xff, 0x06, 0xbe, 0x65, 0xe3, 0x92, 0x2a, 0xcc, 0x7a, 0x79, 0xbf,
+	0xd5, 0xdd, 0x40, 0xb1, 0x8d, 0xf6, 0xbb, 0x0a, 0x6e, 0x0f, 0xf5, 0x35, 0x7c, 0xa6, 0x80, 0xd9,
+	0x54, 0x1f, 0x3c, 0x94, 0xb5, 0xbf, 0x3d, 0x8a, 0x07, 0x86, 0x5c, 0xaf, 0x0a, 0x3b, 0xed, 0xca,
+	0x6c, 0xdf, 0x66, 0x1f, 0x3d, 0xfc, 0x5e, 0x01, 0x45, 0xdc, 0x17, 0xc3, 0x6e, 0x58, 0x36, 0xc6,
+	0x23, 0x2a, 0x02, 0xad, 0xde, 0x96, 0x7e, 0x2b, 0xf6, 0xef, 0x04, 0x68, 0x50, 0x81, 0xf6, 0x8d,
+	0x0a, 0x66, 0xd3, 0x05, 0x0f, 0x6d, 0x90, 0xf1, 0xa9, 0x23, 0x1d, 0x36, 0xd2, 0xd8, 0x6b, 0x52,
+	0x27, 0xf6, 0xd2, 0x64, 0xa7, 0x5d, 0xc9, 0x84, 0x2b, 0x21, 0xba, 0x4c, 0x5f, 0xf5, 0x82, 0xe9,
+	0x9b, 0xb9, 0xfc, 0xf4, 0xfd, 0x53, 0x01, 0x93, 0x35, 0xb3, 0xda, 0xa0, 0xf6, 0x3e, 0xb4, 0x41,
+	0xd6, 0x26, 0x0e, 0x93, 0x2e, 0x58, 0x1b, 0x85, 0xb6, 0x66, 0x6e, 0x61, 0x1e, 0xa7, 0xfc, 0xfd,
+	0xda, 0x03, 0x84, 0x04, 0x38, 0x24, 0xe0, 0x06, 0x3e, 0xb0, 0xb1, 0xcf, 0x65, 0x16, 0x8c, 0x81,
+	0x66, 0x56, 0xd2, 0xdc, 0x58, 0x17, 0xc0, 0x48, 0x12, 0x68, 0xbb, 0x20, 0x27, 0x0c, 0x2e, 0xd6,
+	0x34, 0x56, 0x41, 0xc1, 0x67, 0x78, 0x97, 0x1c, 0x6c, 0x60, 0xaf, 0xce, 0xf7, 0x44, 0x90, 0x72,
+	0xd5, 0x57, 0x24, 0x76, 0xc1, 0x4c, 0xec, 0xa1, 0x94, 0xa5, 0xf6, 0xad, 0x02, 0xf2, 0x3d, 0x3f,
+	0x87, 0x55, 0x1f, 0xba, 0x56, 0xd0, 0xe5, 0x92, 0x73, 0x13, 0xe3, 0x48, 0xec, 0xf4, 0xfa, 0x82,
+	0x3a, 0xb4, 0x2f, 0xac, 0x82, 0x29, 0xf1, 0xfd, 0x6d, 0xd3, 0x46, 0x29, 0x23, 0xac, 0x5e, 0xed,
+	0x0e, 0x1d, 0xa6, 0x5c, 0x3f, 0x4d, 0xfc, 0x46, 0x3d, 0x6b, 0xed, 0x67, 0x15, 0xcc, 0x6c, 0x45,
+	0x8e, 0x32, 0x69, 0x83, 0xd8, 0x87, 0x57, 0x30, 0x09, 0x30, 0x90, 0x63, 0xcd, 0x06, 0xee, 0xd6,
+	0xf5, 0xe6, 0x48, 0xf9, 0x9a, 0xd4, 0x8e, 0x9a, 0x0d, 0x1c, 0xe7, 0x6d, 0xf8, 0x14, 0xa0, 0x88,
+	0x0a, 0xbe, 0x07, 0x6e, 0x5a, 0xa9, 0xb1, 0x27, 0xaa, 0x96, 0xbc, 0x88, 0xef, 0xcd, 0xf4, 0x44,
+	0x14, 0xa0, 0x7e, 0x5b, 0xed, 0x44, 0x01, 0xc5, 0x14, 0xd5, 0x15, 0xcc, 0x86, 0x5e, 0x7a, 0x36,
+	0xac, 0x8d, 0xcd, 0x4d, 0x43, 0x46, 0xc3, 0xdf, 0xfa, 0xef, 0x68, 0x62, 0xcc, 0xe0, 0xdb, 0x60,
+	0xc6, 0x4a, 0x7c, 0x6f, 0x07, 0x25, 0x45, 0xb8, 0xad, 0xd8, 0x69, 0x57, 0x66, 0x92, 0x1f, 0xe2,
+	0x01, 0x4a, 0xdb, 0xc1, 0xcf, 0xc1, 0x14, 0xf1, 0x45, 0xa3, 0xe8, 0xde, 0xe0, 0xfe, 0x68, 0xa5,
+	0x2b, 0xb0, 0x62, 0x8f, 0xc9, 0x85, 0x00, 0xf5, 0x68, 0xb4, 0x1f, 0x33, 0x7d, 0x37, 0x08, 0x53,
+	0x00, 0xbe, 0x0b, 0xf2, 0x0e, 0x61, 0xd8, 0xe6, 0x84, 0x7a, 0xf2, 0xdd, 0x5a, 0xee, 0xbe, 0x34,
+	0x1f, 0x74, 0x37, 0x4e, 0x93, 0x0f, 0x28, 0x3e, 0x00, 0x29, 0xc8, 0xee, 0x32, 0xea, 0x8a, 0xe2,
+	0x1b, 0x67, 0xae, 0x86, 0xce, 0x8d, 0x6b, 0xf9, 0x7d, 0x46, 0x5d, 0x24, 0x88, 0x20, 0x01, 0x2a,
+	0xa7, 0xa2, 0x8a, 0xc7, 0x4e, 0x07, 0x24, 0x9d, 0xfa, 0x98, 0x22, 0x95, 0xd3, 0x30, 0x44, 0x01,
+	0x66, 0x2d, 0x62, 0xf7, 0x66, 0xd0, 0x91, 0x42, 0xb4, 0x1d, 0x61, 0xc5, 0x21, 0x92, 0x0b, 0x01,
+	0xea, 0xd1, 0x68, 0x16, 0x28, 0x24, 0x5f, 0x77, 0x97, 0x31, 0xf3, 0x3c, 0x53, 0xc0, 0xa4, 0x64,
+	0x86, 0xf7, 0x12, 0x8d, 0x31, 0xa2, 0x28, 0x9d, 0xdf, 0x14, 0xe1, 0x96, 0x6c, 0xc9, 0xea, 0x39,
+	0xed, 0xaf, 0xc9, 0x49, 0x43, 0x8f, 0xfe, 0x13, 0xaa, 0xd7, 0x3c, 0xfe, 0x88, 0x6d, 0x73, 0x46,
+	0xbc, 0x7a, 0x75, 0x2a, 0xdd, 0xc0, 0xab, 0xcb, 0x47, 0x27, 0xe5, 0x89, 0xe7, 0x27, 0xe5, 0x89,
+	0xe3, 0x93, 0xf2, 0xc4, 0x57, 0x9d, 0xb2, 0x72, 0xd4, 0x29, 0x2b, 0xcf, 0x3b, 0x65, 0xe5, 0xb8,
+	0x53, 0x56, 0xfe, 0xee, 0x94, 0x95, 0xef, 0x5e, 0x94, 0x27, 0x3e, 0x9e, 0x94, 0x7e, 0xfc, 0x2f,
+	0x00, 0x00, 0xff, 0xff, 0x31, 0xf8, 0xdd, 0x70, 0xd0, 0x16, 0x00, 0x00,
 }
 
 func (m *AddressGroup) Marshal() (dAtA []byte, err error) {
@@ -605,6 +703,20 @@ func (m *AddressGroup) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if len(m.ExternalEntities) > 0 {
+		for iNdEx := len(m.ExternalEntities) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.ExternalEntities[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintGenerated(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
 	if len(m.Pods) > 0 {
 		for iNdEx := len(m.Pods) - 1; iNdEx >= 0; iNdEx-- {
 			{
@@ -699,6 +811,34 @@ func (m *AddressGroupPatch) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if len(m.RemovedExternalEntities) > 0 {
+		for iNdEx := len(m.RemovedExternalEntities) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.RemovedExternalEntities[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintGenerated(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x2a
+		}
+	}
+	if len(m.AddedExternalEntities) > 0 {
+		for iNdEx := len(m.AddedExternalEntities) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.AddedExternalEntities[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintGenerated(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x22
+		}
+	}
 	if len(m.RemovedPods) > 0 {
 		for iNdEx := len(m.RemovedPods) - 1; iNdEx >= 0; iNdEx-- {
 			{
@@ -760,6 +900,20 @@ func (m *AppliedToGroup) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if len(m.ExternalEntities) > 0 {
+		for iNdEx := len(m.ExternalEntities) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.ExternalEntities[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintGenerated(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
 	if len(m.Pods) > 0 {
 		for iNdEx := len(m.Pods) - 1; iNdEx >= 0; iNdEx-- {
 			{
@@ -854,6 +1008,34 @@ func (m *AppliedToGroupPatch) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if len(m.RemovedExternalEntities) > 0 {
+		for iNdEx := len(m.RemovedExternalEntities) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.RemovedExternalEntities[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintGenerated(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x2a
+		}
+	}
+	if len(m.AddedExternalEntities) > 0 {
+		for iNdEx := len(m.AddedExternalEntities) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.AddedExternalEntities[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintGenerated(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x22
+		}
+	}
 	if len(m.RemovedPods) > 0 {
 		for iNdEx := len(m.RemovedPods) - 1; iNdEx >= 0; iNdEx-- {
 			{
@@ -892,6 +1074,132 @@ func (m *AppliedToGroupPatch) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	}
 	i--
 	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *ExternalEndpoint) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ExternalEndpoint) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ExternalEndpoint) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Ports) > 0 {
+		for iNdEx := len(m.Ports) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Ports[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintGenerated(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	if m.IP != nil {
+		i -= len(m.IP)
+		copy(dAtA[i:], m.IP)
+		i = encodeVarintGenerated(dAtA, i, uint64(len(m.IP)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *ExternalEntityReference) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ExternalEntityReference) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ExternalEntityReference) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	i -= len(m.Namespace)
+	copy(dAtA[i:], m.Namespace)
+	i = encodeVarintGenerated(dAtA, i, uint64(len(m.Namespace)))
+	i--
+	dAtA[i] = 0x12
+	i -= len(m.Name)
+	copy(dAtA[i:], m.Name)
+	i = encodeVarintGenerated(dAtA, i, uint64(len(m.Name)))
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *GroupMemberExternalEntity) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *GroupMemberExternalEntity) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *GroupMemberExternalEntity) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.ExternalEndpoints) > 0 {
+		for iNdEx := len(m.ExternalEndpoints) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.ExternalEndpoints[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintGenerated(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	if m.ExternalEntity != nil {
+		{
+			size, err := m.ExternalEntity.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintGenerated(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
 	return len(dAtA) - i, nil
 }
 
@@ -1378,6 +1686,12 @@ func (m *AddressGroup) Size() (n int) {
 			n += 1 + l + sovGenerated(uint64(l))
 		}
 	}
+	if len(m.ExternalEntities) > 0 {
+		for _, e := range m.ExternalEntities {
+			l = e.Size()
+			n += 1 + l + sovGenerated(uint64(l))
+		}
+	}
 	return n
 }
 
@@ -1418,6 +1732,18 @@ func (m *AddressGroupPatch) Size() (n int) {
 			n += 1 + l + sovGenerated(uint64(l))
 		}
 	}
+	if len(m.AddedExternalEntities) > 0 {
+		for _, e := range m.AddedExternalEntities {
+			l = e.Size()
+			n += 1 + l + sovGenerated(uint64(l))
+		}
+	}
+	if len(m.RemovedExternalEntities) > 0 {
+		for _, e := range m.RemovedExternalEntities {
+			l = e.Size()
+			n += 1 + l + sovGenerated(uint64(l))
+		}
+	}
 	return n
 }
 
@@ -1431,6 +1757,12 @@ func (m *AppliedToGroup) Size() (n int) {
 	n += 1 + l + sovGenerated(uint64(l))
 	if len(m.Pods) > 0 {
 		for _, e := range m.Pods {
+			l = e.Size()
+			n += 1 + l + sovGenerated(uint64(l))
+		}
+	}
+	if len(m.ExternalEntities) > 0 {
+		for _, e := range m.ExternalEntities {
 			l = e.Size()
 			n += 1 + l + sovGenerated(uint64(l))
 		}
@@ -1471,6 +1803,69 @@ func (m *AppliedToGroupPatch) Size() (n int) {
 	}
 	if len(m.RemovedPods) > 0 {
 		for _, e := range m.RemovedPods {
+			l = e.Size()
+			n += 1 + l + sovGenerated(uint64(l))
+		}
+	}
+	if len(m.AddedExternalEntities) > 0 {
+		for _, e := range m.AddedExternalEntities {
+			l = e.Size()
+			n += 1 + l + sovGenerated(uint64(l))
+		}
+	}
+	if len(m.RemovedExternalEntities) > 0 {
+		for _, e := range m.RemovedExternalEntities {
+			l = e.Size()
+			n += 1 + l + sovGenerated(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *ExternalEndpoint) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.IP != nil {
+		l = len(m.IP)
+		n += 1 + l + sovGenerated(uint64(l))
+	}
+	if len(m.Ports) > 0 {
+		for _, e := range m.Ports {
+			l = e.Size()
+			n += 1 + l + sovGenerated(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *ExternalEntityReference) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Name)
+	n += 1 + l + sovGenerated(uint64(l))
+	l = len(m.Namespace)
+	n += 1 + l + sovGenerated(uint64(l))
+	return n
+}
+
+func (m *GroupMemberExternalEntity) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.ExternalEntity != nil {
+		l = m.ExternalEntity.Size()
+		n += 1 + l + sovGenerated(uint64(l))
+	}
+	if len(m.ExternalEndpoints) > 0 {
+		for _, e := range m.ExternalEndpoints {
 			l = e.Size()
 			n += 1 + l + sovGenerated(uint64(l))
 		}
@@ -1673,9 +2068,15 @@ func (this *AddressGroup) String() string {
 		repeatedStringForPods += strings.Replace(strings.Replace(f.String(), "GroupMemberPod", "GroupMemberPod", 1), `&`, ``, 1) + ","
 	}
 	repeatedStringForPods += "}"
+	repeatedStringForExternalEntities := "[]GroupMemberExternalEntity{"
+	for _, f := range this.ExternalEntities {
+		repeatedStringForExternalEntities += strings.Replace(strings.Replace(f.String(), "GroupMemberExternalEntity", "GroupMemberExternalEntity", 1), `&`, ``, 1) + ","
+	}
+	repeatedStringForExternalEntities += "}"
 	s := strings.Join([]string{`&AddressGroup{`,
 		`ObjectMeta:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.ObjectMeta), "ObjectMeta", "v1.ObjectMeta", 1), `&`, ``, 1) + `,`,
 		`Pods:` + repeatedStringForPods + `,`,
+		`ExternalEntities:` + repeatedStringForExternalEntities + `,`,
 		`}`,
 	}, "")
 	return s
@@ -1710,10 +2111,22 @@ func (this *AddressGroupPatch) String() string {
 		repeatedStringForRemovedPods += strings.Replace(strings.Replace(f.String(), "GroupMemberPod", "GroupMemberPod", 1), `&`, ``, 1) + ","
 	}
 	repeatedStringForRemovedPods += "}"
+	repeatedStringForAddedExternalEntities := "[]GroupMemberExternalEntity{"
+	for _, f := range this.AddedExternalEntities {
+		repeatedStringForAddedExternalEntities += strings.Replace(strings.Replace(f.String(), "GroupMemberExternalEntity", "GroupMemberExternalEntity", 1), `&`, ``, 1) + ","
+	}
+	repeatedStringForAddedExternalEntities += "}"
+	repeatedStringForRemovedExternalEntities := "[]GroupMemberExternalEntity{"
+	for _, f := range this.RemovedExternalEntities {
+		repeatedStringForRemovedExternalEntities += strings.Replace(strings.Replace(f.String(), "GroupMemberExternalEntity", "GroupMemberExternalEntity", 1), `&`, ``, 1) + ","
+	}
+	repeatedStringForRemovedExternalEntities += "}"
 	s := strings.Join([]string{`&AddressGroupPatch{`,
 		`ObjectMeta:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.ObjectMeta), "ObjectMeta", "v1.ObjectMeta", 1), `&`, ``, 1) + `,`,
 		`AddedPods:` + repeatedStringForAddedPods + `,`,
 		`RemovedPods:` + repeatedStringForRemovedPods + `,`,
+		`AddedExternalEntities:` + repeatedStringForAddedExternalEntities + `,`,
+		`RemovedExternalEntities:` + repeatedStringForRemovedExternalEntities + `,`,
 		`}`,
 	}, "")
 	return s
@@ -1727,9 +2140,15 @@ func (this *AppliedToGroup) String() string {
 		repeatedStringForPods += strings.Replace(strings.Replace(f.String(), "GroupMemberPod", "GroupMemberPod", 1), `&`, ``, 1) + ","
 	}
 	repeatedStringForPods += "}"
+	repeatedStringForExternalEntities := "[]GroupMemberExternalEntity{"
+	for _, f := range this.ExternalEntities {
+		repeatedStringForExternalEntities += strings.Replace(strings.Replace(f.String(), "GroupMemberExternalEntity", "GroupMemberExternalEntity", 1), `&`, ``, 1) + ","
+	}
+	repeatedStringForExternalEntities += "}"
 	s := strings.Join([]string{`&AppliedToGroup{`,
 		`ObjectMeta:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.ObjectMeta), "ObjectMeta", "v1.ObjectMeta", 1), `&`, ``, 1) + `,`,
 		`Pods:` + repeatedStringForPods + `,`,
+		`ExternalEntities:` + repeatedStringForExternalEntities + `,`,
 		`}`,
 	}, "")
 	return s
@@ -1764,10 +2183,65 @@ func (this *AppliedToGroupPatch) String() string {
 		repeatedStringForRemovedPods += strings.Replace(strings.Replace(f.String(), "GroupMemberPod", "GroupMemberPod", 1), `&`, ``, 1) + ","
 	}
 	repeatedStringForRemovedPods += "}"
+	repeatedStringForAddedExternalEntities := "[]GroupMemberExternalEntity{"
+	for _, f := range this.AddedExternalEntities {
+		repeatedStringForAddedExternalEntities += strings.Replace(strings.Replace(f.String(), "GroupMemberExternalEntity", "GroupMemberExternalEntity", 1), `&`, ``, 1) + ","
+	}
+	repeatedStringForAddedExternalEntities += "}"
+	repeatedStringForRemovedExternalEntities := "[]GroupMemberExternalEntity{"
+	for _, f := range this.RemovedExternalEntities {
+		repeatedStringForRemovedExternalEntities += strings.Replace(strings.Replace(f.String(), "GroupMemberExternalEntity", "GroupMemberExternalEntity", 1), `&`, ``, 1) + ","
+	}
+	repeatedStringForRemovedExternalEntities += "}"
 	s := strings.Join([]string{`&AppliedToGroupPatch{`,
 		`ObjectMeta:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.ObjectMeta), "ObjectMeta", "v1.ObjectMeta", 1), `&`, ``, 1) + `,`,
 		`AddedPods:` + repeatedStringForAddedPods + `,`,
 		`RemovedPods:` + repeatedStringForRemovedPods + `,`,
+		`AddedExternalEntities:` + repeatedStringForAddedExternalEntities + `,`,
+		`RemovedExternalEntities:` + repeatedStringForRemovedExternalEntities + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *ExternalEndpoint) String() string {
+	if this == nil {
+		return "nil"
+	}
+	repeatedStringForPorts := "[]NamedPort{"
+	for _, f := range this.Ports {
+		repeatedStringForPorts += strings.Replace(strings.Replace(f.String(), "NamedPort", "NamedPort", 1), `&`, ``, 1) + ","
+	}
+	repeatedStringForPorts += "}"
+	s := strings.Join([]string{`&ExternalEndpoint{`,
+		`IP:` + valueToStringGenerated(this.IP) + `,`,
+		`Ports:` + repeatedStringForPorts + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *ExternalEntityReference) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&ExternalEntityReference{`,
+		`Name:` + fmt.Sprintf("%v", this.Name) + `,`,
+		`Namespace:` + fmt.Sprintf("%v", this.Namespace) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *GroupMemberExternalEntity) String() string {
+	if this == nil {
+		return "nil"
+	}
+	repeatedStringForExternalEndpoints := "[]ExternalEndpoint{"
+	for _, f := range this.ExternalEndpoints {
+		repeatedStringForExternalEndpoints += strings.Replace(strings.Replace(f.String(), "ExternalEndpoint", "ExternalEndpoint", 1), `&`, ``, 1) + ","
+	}
+	repeatedStringForExternalEndpoints += "}"
+	s := strings.Join([]string{`&GroupMemberExternalEntity{`,
+		`ExternalEntity:` + strings.Replace(this.ExternalEntity.String(), "ExternalEntityReference", "ExternalEntityReference", 1) + `,`,
+		`ExternalEndpoints:` + repeatedStringForExternalEndpoints + `,`,
 		`}`,
 	}, "")
 	return s
@@ -2018,6 +2492,40 @@ func (m *AddressGroup) Unmarshal(dAtA []byte) error {
 			}
 			m.Pods = append(m.Pods, GroupMemberPod{})
 			if err := m.Pods[len(m.Pods)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ExternalEntities", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenerated
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ExternalEntities = append(m.ExternalEntities, GroupMemberExternalEntity{})
+			if err := m.ExternalEntities[len(m.ExternalEntities)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -2295,6 +2803,74 @@ func (m *AddressGroupPatch) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AddedExternalEntities", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenerated
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.AddedExternalEntities = append(m.AddedExternalEntities, GroupMemberExternalEntity{})
+			if err := m.AddedExternalEntities[len(m.AddedExternalEntities)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RemovedExternalEntities", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenerated
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.RemovedExternalEntities = append(m.RemovedExternalEntities, GroupMemberExternalEntity{})
+			if err := m.RemovedExternalEntities[len(m.RemovedExternalEntities)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipGenerated(dAtA[iNdEx:])
@@ -2412,6 +2988,40 @@ func (m *AppliedToGroup) Unmarshal(dAtA []byte) error {
 			}
 			m.Pods = append(m.Pods, GroupMemberPod{})
 			if err := m.Pods[len(m.Pods)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ExternalEntities", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenerated
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ExternalEntities = append(m.ExternalEntities, GroupMemberExternalEntity{})
+			if err := m.ExternalEntities[len(m.ExternalEntities)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -2686,6 +3296,435 @@ func (m *AppliedToGroupPatch) Unmarshal(dAtA []byte) error {
 			}
 			m.RemovedPods = append(m.RemovedPods, GroupMemberPod{})
 			if err := m.RemovedPods[len(m.RemovedPods)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AddedExternalEntities", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenerated
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.AddedExternalEntities = append(m.AddedExternalEntities, GroupMemberExternalEntity{})
+			if err := m.AddedExternalEntities[len(m.AddedExternalEntities)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RemovedExternalEntities", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenerated
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.RemovedExternalEntities = append(m.RemovedExternalEntities, GroupMemberExternalEntity{})
+			if err := m.RemovedExternalEntities[len(m.RemovedExternalEntities)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipGenerated(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ExternalEndpoint) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowGenerated
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ExternalEndpoint: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ExternalEndpoint: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field IP", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenerated
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.IP = append(m.IP[:0], dAtA[iNdEx:postIndex]...)
+			if m.IP == nil {
+				m.IP = []byte{}
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Ports", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenerated
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Ports = append(m.Ports, NamedPort{})
+			if err := m.Ports[len(m.Ports)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipGenerated(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ExternalEntityReference) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowGenerated
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ExternalEntityReference: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ExternalEntityReference: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Name", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenerated
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Name = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Namespace", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenerated
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Namespace = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipGenerated(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *GroupMemberExternalEntity) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowGenerated
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: GroupMemberExternalEntity: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: GroupMemberExternalEntity: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ExternalEntity", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenerated
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.ExternalEntity == nil {
+				m.ExternalEntity = &ExternalEntityReference{}
+			}
+			if err := m.ExternalEntity.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ExternalEndpoints", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenerated
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ExternalEndpoints = append(m.ExternalEndpoints, ExternalEndpoint{})
+			if err := m.ExternalEndpoints[len(m.ExternalEndpoints)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

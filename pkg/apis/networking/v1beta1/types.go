@@ -29,6 +29,8 @@ type AppliedToGroup struct {
 	metav1.ObjectMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
 	// Pods is a list of Pods selected by this group.
 	Pods []GroupMemberPod `json:"pods,omitempty" protobuf:"bytes,2,rep,name=pods"`
+	// ExternalEntities is a list of ExternalEntities selected by this group.
+	ExternalEntities []GroupMemberExternalEntity `json:"externalEntities,omitempty" protobuf:"bytes,3,rep,name=externalEntities"`
 }
 
 // PodReference represents a Pod Reference.
@@ -59,13 +61,40 @@ type GroupMemberPod struct {
 	Ports []NamedPort `json:"ports,omitempty" protobuf:"bytes,3,rep,name=ports"`
 }
 
+// ExternalEntityReference represents a ExternalEntity Reference.
+type ExternalEntityReference struct {
+	// The name of this ExternalEntity.
+	Name string `json:"name,omitempty" protobuf:"bytes,1,opt,name=name"`
+	// The namespace of this ExternalEntity.
+	Namespace string `json:"namespace,omitempty" protobuf:"bytes,2,opt,name=namespace"`
+}
+
+// ExternalEndpoint represents an external endpoint.
+type ExternalEndpoint struct {
+	// IP is the IP address of the ExternalEndpoint.
+	IP IPAddress `json:"ip,omitempty" protobuf:"bytes,1,opt,name=ip"`
+	// Ports is the list NamedPort of the ExternalEndpoint.
+	Ports []NamedPort `json:"ports,omitempty" protobuf:"bytes,2,rep,name=ports"`
+}
+
+// GroupMemberExternalEntity represents an ExternalEntity related member to be populated in Groups.
+type GroupMemberExternalEntity struct {
+	// ExternalEntity maintains the reference to the ExternalEntity.
+	ExternalEntity *ExternalEntityReference `json:"externalEntity,omitempty" protobuf:"bytes,1,opt,name=externalEntity"`
+
+	// ExternalEndpoints maintains a list of ExternalEndPoints associated with this ExternalEntity.
+	ExternalEndpoints []ExternalEndpoint `json:"externalEndpoints,omitempty" protobuf:"bytes,2,rep,name=externalEndpoints"`
+}
+
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 // AppliedToGroupPatch describes the incremental update of an AppliedToGroup.
 type AppliedToGroupPatch struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
-	AddedPods         []GroupMemberPod `json:"addedPods,omitempty" protobuf:"bytes,2,rep,name=addedPods"`
-	RemovedPods       []GroupMemberPod `json:"removedPods,omitempty" protobuf:"bytes,3,rep,name=removedPods"`
+	metav1.TypeMeta         `json:",inline"`
+	metav1.ObjectMeta       `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
+	AddedPods               []GroupMemberPod            `json:"addedPods,omitempty" protobuf:"bytes,2,rep,name=addedPods"`
+	RemovedPods             []GroupMemberPod            `json:"removedPods,omitempty" protobuf:"bytes,3,rep,name=removedPods"`
+	AddedExternalEntities   []GroupMemberExternalEntity `json:"addedExternalEntities,omitempty" protobuf:"bytes,4,rep,name=addedExternalEntities"`
+	RemovedExternalEntities []GroupMemberExternalEntity `json:"removedExternalEntities,omitempty" protobuf:"bytes,5,rep,name=removedExternalEntities"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -85,6 +114,8 @@ type AddressGroup struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
 	Pods              []GroupMemberPod `json:"pods,omitempty" protobuf:"bytes,2,rep,name=pods"`
+	// ExternalEntities is a list of ExternalEntities selected by this group.
+	ExternalEntities []GroupMemberExternalEntity `json:"externalEntities,omitempty" protobuf:"bytes,3,rep,name=externalEntities"`
 }
 
 // IPAddress describes a single IP address. Either an IPv4 or IPv6 address must be set.
@@ -99,10 +130,12 @@ type IPNet struct {
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 // AddressGroupPatch describes the incremental update of an AddressGroup.
 type AddressGroupPatch struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
-	AddedPods         []GroupMemberPod `json:"addedPods,omitempty" protobuf:"bytes,2,rep,name=addedPods"`
-	RemovedPods       []GroupMemberPod `json:"removedPods,omitempty" protobuf:"bytes,3,rep,name=removedPods"`
+	metav1.TypeMeta         `json:",inline"`
+	metav1.ObjectMeta       `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
+	AddedPods               []GroupMemberPod            `json:"addedPods,omitempty" protobuf:"bytes,2,rep,name=addedPods"`
+	RemovedPods             []GroupMemberPod            `json:"removedPods,omitempty" protobuf:"bytes,3,rep,name=removedPods"`
+	AddedExternalEntities   []GroupMemberExternalEntity `json:"addedExternalEntities,omitempty" protobuf:"bytes,4,rep,name=addedExternalEntities"`
+	RemovedExternalEntities []GroupMemberExternalEntity `json:"removedExternalEntities,omitempty" protobuf:"bytes,5,rep,name=removedExternalEntities"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
