@@ -271,6 +271,7 @@ func (r *reconciler) getOFPriority(rule *CompletedRule, table binding.TableIDTyp
 		RulePriority:   rule.Priority,
 	}
 	ofPriority, registered := pa.assigner.GetOFPriority(p)
+
 	if !registered {
 		allPrioritiesInPolicy := make([]types.Priority, rule.MaxPriority+1)
 		for i := int32(0); i <= rule.MaxPriority; i++ {
@@ -586,6 +587,11 @@ func (r *reconciler) update(lastRealized *lastRealized, newRule *CompletedRule, 
 					FlowID:    ofID,
 					TableID:   table,
 					PolicyRef: newRule.SourceRef,
+				}
+				if len(newRule.To.IPBlocks) > 0 {
+					// Diff Addresses between To and Except of IPBlocks
+					to := ipBlocksToOFAddresses(newRule.To.IPBlocks)
+					ofRule.To = append(ofRule.To, to...)
 				}
 				if err = r.installOFRule(ofRule); err != nil {
 					return err

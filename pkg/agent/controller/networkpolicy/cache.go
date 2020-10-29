@@ -531,6 +531,17 @@ func (c *ruleCache) addAppliedToGroupLocked(group *v1beta1.AppliedToGroup) error
 	for i := range group.Pods {
 		podSet.Insert(&group.Pods[i])
 	}
+	// TODO, trick controller to think VM as pod
+	for _, m := range group.GroupMembers {
+		p := &v1beta1.GroupMemberPod{
+			Pod: &v1beta1.PodReference{
+				Name:      m.ExternalEntity.Name,
+				Namespace: m.ExternalEntity.Namespace,
+			},
+		}
+		podSet.Insert(p)
+	}
+
 	oldPodSet, exists := c.podSetByGroup[group.Name]
 	if exists && oldPodSet.Equal(podSet) {
 		return nil
@@ -556,6 +567,27 @@ func (c *ruleCache) PatchAppliedToGroup(patch *v1beta1.AppliedToGroupPatch) erro
 	for i := range patch.RemovedPods {
 		podSet.Delete(&patch.RemovedPods[i])
 	}
+
+	// TODO, trick controller to think VM as pod
+	for _, m := range patch.AddedGroupMembers {
+		p := &v1beta1.GroupMemberPod{
+			Pod: &v1beta1.PodReference{
+				Name:      m.ExternalEntity.Name,
+				Namespace: m.ExternalEntity.Namespace,
+			},
+		}
+		podSet.Insert(p)
+	}
+	for _, m := range patch.RemovedGroupMembers {
+		p := &v1beta1.GroupMemberPod{
+			Pod: &v1beta1.PodReference{
+				Name:      m.ExternalEntity.Name,
+				Namespace: m.ExternalEntity.Namespace,
+			},
+		}
+		podSet.Delete(p)
+	}
+
 	c.onAppliedToGroupUpdate(patch.Name)
 	return nil
 }
