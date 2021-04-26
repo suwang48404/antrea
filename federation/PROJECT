@@ -1,0 +1,29 @@
+domain: antrea.io
+layout:
+- go.kubebuilder.io/v3
+projectName: federation 
+repo: github.com/vmware-tanzu/antrea
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: antrea.io
+  group: mcs.crd
+  kind: Federation
+  path: github.com/vmware-tanzu/antrea/api/v1alpha1
+  version: v1alpha1
+  webhooks:
+    defaulting: true
+    validation: true
+    webhookVersion: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: antrea.io
+  group: mcs.crd
+  kind: ClusterClaim
+  path: github.com/vmware-tanzu/antrea/api/v1alpha1
+  version: v1alpha1
+version: "3"

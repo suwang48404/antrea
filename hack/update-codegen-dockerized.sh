@@ -158,6 +158,7 @@ MOCKGEN_TARGETS=(
   "pkg/ovs/ovsctl OVSCtlClient testing"
   "pkg/querier AgentNetworkPolicyInfoQuerier testing"
   "third_party/proxy Provider testing"
+   "federation/controllers/federation/clusterclient ClusterClient testing"
 )
 
 # Command mockgen does not automatically replace variable YEAR with current year

@@ -1,0 +1,72 @@
+# permissions for federation supervisor clusters.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: federation-supervisor-role
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - endpoints
+      - services
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+      - namespaces
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - crd.antrea.io
+    resources:
+      - externalentities
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - crd.antrea.io
+    resources:
+      - networkpolicies
+      - clusternetworkpolicies
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - federation.mcs.crd.antrea.io
+    resources:
+      - clusterclaims
+    verbs:
+      - get
+      - list
+      - watch
+---
+# permission to view Secret.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: secret-viewer-role
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+      - list
+      - watch

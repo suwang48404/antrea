@@ -1,0 +1,68 @@
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: manager-role
+rules:
+- apiGroups:
+  - crd.antrea.io
+  resources:
+  - externalentities
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - crd.antrea.io
+  resources:
+  - externalentities/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - mcs.crd.antrea.io
+  resources:
+  - clusterclaims
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mcs.crd.antrea.io
+  resources:
+  - clusterclaims/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - mcs.crd.antrea.io
+  resources:
+  - federations
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mcs.crd.antrea.io
+  resources:
+  - federations/status
+  verbs:
+  - get
+  - patch
+  - update

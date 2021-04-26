@@ -1,0 +1,3 @@
+resources:
+- federation_supervisor_role.yaml
+- federation_supervisor_role_binding.yaml

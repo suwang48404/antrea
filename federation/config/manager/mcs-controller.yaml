@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    control-plane: antrea-mcs-controller
+  name: system
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mcs-controller
+  namespace: system
+  labels:
+    control-plane: antrea-mcs-controller
+spec:
+  selector:
+    matchLabels:
+      control-plane: antrea-mcs-controller
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        control-plane: antrea-mcs-controller
+    spec:
+      containers:
+        - command:
+            - /mcs-controller
+          args:
+            - --enable-debug-log
+          image: antrea/antrea-mcs:latest
+          name: antrea-mcs-controller
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 2000Mi
+            requests:
+              cpu: 100m
+              memory: 200Mi
+      terminationGracePeriodSeconds: 10
