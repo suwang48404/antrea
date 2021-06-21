@@ -1,0 +1,1078 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    control-plane: controller-manager
+  name: antrea-system
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: antrea-system/antrea-multicluster-serving-cert
+    controller-gen.kubebuilder.io/version: v0.4.1
+  name: clusterclaims.multicluster.crd.antrea.io
+spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        service:
+          name: antrea-multicluster-webhook-service
+          namespace: antrea-system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+  group: multicluster.crd.antrea.io
+  names:
+    kind: ClusterClaim
+    listKind: ClusterClaimList
+    plural: clusterclaims
+    singular: clusterclaim
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: ClusterClaim is the Schema for the clusterclaims API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ClusterClaimSpec defines the desired state of ClusterClaim
+            properties:
+              foo:
+                description: Foo is an example field of ClusterClaim. Edit clusterclaim_types.go to remove/update
+                type: string
+            type: object
+          status:
+            description: ClusterClaimStatus defines the observed state of ClusterClaim
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: antrea-system/antrea-multicluster-serving-cert
+    controller-gen.kubebuilder.io/version: v0.4.1
+  name: memberclusterannounces.multicluster.crd.antrea.io
+spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        service:
+          name: antrea-multicluster-webhook-service
+          namespace: antrea-system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+  group: multicluster.crd.antrea.io
+  names:
+    kind: MemberClusterAnnounce
+    listKind: MemberClusterAnnounceList
+    plural: memberclusterannounces
+    singular: memberclusterannounce
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: MemberClusterAnnounce is the Schema for the memberclusterannounces API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: MemberClusterAnnounceSpec defines the desired state of MemberClusterAnnounce
+            properties:
+              foo:
+                description: Foo is an example field of MemberClusterAnnounce. Edit memberclusterannounce_types.go to remove/update
+                type: string
+            type: object
+          status:
+            description: MemberClusterAnnounceStatus defines the observed state of MemberClusterAnnounce
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: antrea-system/antrea-multicluster-serving-cert
+    controller-gen.kubebuilder.io/version: v0.4.1
+  name: multiclustersets.multicluster.crd.antrea.io
+spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        service:
+          name: antrea-multicluster-webhook-service
+          namespace: antrea-system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+  group: multicluster.crd.antrea.io
+  names:
+    kind: MultiClusterSet
+    listKind: MultiClusterSetList
+    plural: multiclustersets
+    singular: multiclusterset
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: MultiClusterSet is the Schema for the multiclustersets API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: MultiClusterSetSpec defines the desired state of MultiClusterSet
+            properties:
+              foo:
+                description: Foo is an example field of MultiClusterSet. Edit multiclusterset_types.go to remove/update
+                type: string
+            type: object
+          status:
+            description: MultiClusterSetStatus defines the observed state of MultiClusterSet
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.4.1
+  creationTimestamp: null
+  name: resourceexportfilters.multicluster.crd.antrea.io
+spec:
+  group: multicluster.crd.antrea.io
+  names:
+    kind: ResourceExportFilter
+    listKind: ResourceExportFilterList
+    plural: resourceexportfilters
+    singular: resourceexportfilter
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: ResourceExportFilter is the Schema for the ResourceExportFilters API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ResourceExportFilterSpec defines the desired state of ResourceExportFilter
+            properties:
+              foo:
+                description: Foo is an example field of ResourceExportFilter. Edit ResourceExportFilter_types.go to remove/update
+                type: string
+            type: object
+          status:
+            description: ResourceExportFilterStatus defines the observed state of ResourceExportFilter
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: antrea-system/antrea-multicluster-serving-cert
+    controller-gen.kubebuilder.io/version: v0.4.1
+  name: resourceexports.multicluster.crd.antrea.io
+spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        service:
+          name: antrea-multicluster-webhook-service
+          namespace: antrea-system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+  group: multicluster.crd.antrea.io
+  names:
+    kind: ResourceExport
+    listKind: ResourceExportList
+    plural: resourceexports
+    singular: resourceexport
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: ResourceExport is the Schema for the resourceexports API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ResourceExportSpec defines the desired state of ResourceExport
+            properties:
+              foo:
+                description: Foo is an example field of ResourceExport. Edit resourceexport_types.go to remove/update
+                type: string
+            type: object
+          status:
+            description: ResourceExportStatus defines the observed state of ResourceExport
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.4.1
+  creationTimestamp: null
+  name: resourceimportfilters.multicluster.crd.antrea.io
+spec:
+  group: multicluster.crd.antrea.io
+  names:
+    kind: ResourceImportFilter
+    listKind: ResourceImportFilterList
+    plural: resourceimportfilters
+    singular: resourceimportfilter
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: ResourceImportFilter is the Schema for the ResourceImportFilters API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ResourceImportFilterSpec defines the desired state of ResourceImportFilter
+            properties:
+              foo:
+                description: Foo is an example field of ResourceImportFilter. Edit ResourceImportFilter_types.go to remove/update
+                type: string
+            type: object
+          status:
+            description: ResourceImportFilterStatus defines the observed state of ResourceImportFilter
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: antrea-system/antrea-multicluster-serving-cert
+    controller-gen.kubebuilder.io/version: v0.4.1
+  name: resourceimports.multicluster.crd.antrea.io
+spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        service:
+          name: antrea-multicluster-webhook-service
+          namespace: antrea-system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+  group: multicluster.crd.antrea.io
+  names:
+    kind: ResourceImport
+    listKind: ResourceImportList
+    plural: resourceimports
+    singular: resourceimport
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: ResourceImport is the Schema for the resourceimports API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ResourceImportSpec defines the desired state of ResourceImport
+            properties:
+              foo:
+                description: Foo is an example field of ResourceImport. Edit resourceimport_types.go to remove/update
+                type: string
+            type: object
+          status:
+            description: ResourceImportStatus defines the observed state of ResourceImport
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: antrea-multicluster-controller-manager
+  namespace: antrea-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: antrea-multicluster-leader-election-role
+  namespace: antrea-system
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: antrea-multicluster-manager-role
+rules:
+- apiGroups:
+  - multicluster.crd.antrea.io
+  resources:
+  - clusterclaims
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - multicluster.crd.antrea.io
+  resources:
+  - clusterclaims/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - multicluster.crd.antrea.io
+  resources:
+  - clusterclaims/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - multicluster.crd.antrea.io
+  resources:
+  - memberclusterannounces
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - multicluster.crd.antrea.io
+  resources:
+  - memberclusterannounces/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - multicluster.crd.antrea.io
+  resources:
+  - memberclusterannounces/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - multicluster.crd.antrea.io
+  resources:
+  - multiclustersets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - multicluster.crd.antrea.io
+  resources:
+  - multiclustersets/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - multicluster.crd.antrea.io
+  resources:
+  - multiclustersets/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - multicluster.crd.antrea.io
+  resources:
+  - resourceexportfilters
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - multicluster.crd.antrea.io
+  resources:
+  - resourceexportfilters/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - multicluster.crd.antrea.io
+  resources:
+  - resourceexportfilters/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - multicluster.crd.antrea.io
+  resources:
+  - resourceexports
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - multicluster.crd.antrea.io
+  resources:
+  - resourceexports/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - multicluster.crd.antrea.io
+  resources:
+  - resourceexports/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - multicluster.crd.antrea.io
+  resources:
+  - resourceimportfilters
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - multicluster.crd.antrea.io
+  resources:
+  - resourceimportfilters/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - multicluster.crd.antrea.io
+  resources:
+  - resourceimportfilters/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - multicluster.crd.antrea.io
+  resources:
+  - resourceimports
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - multicluster.crd.antrea.io
+  resources:
+  - resourceimports/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - multicluster.crd.antrea.io
+  resources:
+  - resourceimports/status
+  verbs:
+  - get
+  - patch
+  - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: antrea-multicluster-metrics-reader
+rules:
+- nonResourceURLs:
+  - /metrics
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: antrea-multicluster-proxy-role
+rules:
+- apiGroups:
+  - authentication.k8s.io
+  resources:
+  - tokenreviews
+  verbs:
+  - create
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: antrea-multicluster-leader-election-rolebinding
+  namespace: antrea-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: antrea-multicluster-leader-election-role
+subjects:
+- kind: ServiceAccount
+  name: antrea-multicluster-controller-manager
+  namespace: antrea-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: antrea-multicluster-manager-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: antrea-multicluster-manager-role
+subjects:
+- kind: ServiceAccount
+  name: antrea-multicluster-controller-manager
+  namespace: antrea-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: antrea-multicluster-proxy-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: antrea-multicluster-proxy-role
+subjects:
+- kind: ServiceAccount
+  name: antrea-multicluster-controller-manager
+  namespace: antrea-system
+---
+apiVersion: v1
+data:
+  controller_manager_config.yaml: |
+    apiVersion: controller-runtime.sigs.k8s.io/v1alpha1
+    kind: ControllerManagerConfig
+    health:
+      healthProbeBindAddress: :8081
+    metrics:
+      bindAddress: 127.0.0.1:8080
+    webhook:
+      port: 9443
+    leaderElection:
+      leaderElect: true
+      resourceName: 6536456a.crd.antrea.io
+kind: ConfigMap
+metadata:
+  name: antrea-multicluster-manager-config
+  namespace: antrea-system
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    control-plane: controller-manager
+  name: antrea-multicluster-controller-manager-metrics-service
+  namespace: antrea-system
+spec:
+  ports:
+  - name: https
+    port: 8443
+    targetPort: https
+  selector:
+    control-plane: controller-manager
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: antrea-multicluster-webhook-service
+  namespace: antrea-system
+spec:
+  ports:
+  - port: 443
+    targetPort: 9443
+  selector:
+    control-plane: controller-manager
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    control-plane: controller-manager
+  name: antrea-multicluster-controller-manager
+  namespace: antrea-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      control-plane: controller-manager
+  template:
+    metadata:
+      labels:
+        control-plane: controller-manager
+    spec:
+      containers:
+      - args:
+        - --config=controller_manager_config.yaml
+        command:
+        - /manager
+        image: multicluster-controller/antrea:latest
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        name: manager
+        ports:
+        - containerPort: 9443
+          name: webhook-server
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+          limits:
+            cpu: 100m
+            memory: 30Mi
+          requests:
+            cpu: 100m
+            memory: 20Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+        volumeMounts:
+        - mountPath: /tmp/k8s-webhook-server/serving-certs
+          name: cert
+          readOnly: true
+        - mountPath: /controller_manager_config.yaml
+          name: manager-config
+          subPath: controller_manager_config.yaml
+      securityContext:
+        runAsNonRoot: true
+      serviceAccountName: antrea-multicluster-controller-manager
+      terminationGracePeriodSeconds: 10
+      volumes:
+      - name: cert
+        secret:
+          defaultMode: 420
+          secretName: webhook-server-cert
+      - configMap:
+          name: antrea-multicluster-manager-config
+        name: manager-config
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: antrea-multicluster-serving-cert
+  namespace: antrea-system
+spec:
+  dnsNames:
+  - antrea-multicluster-webhook-service.antrea-system.svc
+  - antrea-multicluster-webhook-service.antrea-system.svc.cluster.local
+  issuerRef:
+    kind: Issuer
+    name: antrea-multicluster-selfsigned-issuer
+  secretName: webhook-server-cert
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: antrea-multicluster-selfsigned-issuer
+  namespace: antrea-system
+spec:
+  selfSigned: {}
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: antrea-system/antrea-multicluster-serving-cert
+  name: antrea-multicluster-mutating-webhook-configuration
+webhooks:
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: antrea-multicluster-webhook-service
+      namespace: antrea-system
+      path: /mutate-multicluster-crd-antrea-io-v1alpha1-clusterclaim
+  failurePolicy: Fail
+  name: mclusterclaim.kb.io
+  rules:
+  - apiGroups:
+    - multicluster.crd.antrea.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - clusterclaims
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: antrea-multicluster-webhook-service
+      namespace: antrea-system
+      path: /mutate-multicluster-crd-antrea-io-v1alpha1-memberclusterannounce
+  failurePolicy: Fail
+  name: mmemberclusterannounce.kb.io
+  rules:
+  - apiGroups:
+    - multicluster.crd.antrea.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - memberclusterannounces
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: antrea-multicluster-webhook-service
+      namespace: antrea-system
+      path: /mutate-multicluster-crd-antrea-io-v1alpha1-multiclusterset
+  failurePolicy: Fail
+  name: mmulticlusterset.kb.io
+  rules:
+  - apiGroups:
+    - multicluster.crd.antrea.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - multiclustersets
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: antrea-multicluster-webhook-service
+      namespace: antrea-system
+      path: /mutate-multicluster-crd-antrea-io-v1alpha1-resourceexport
+  failurePolicy: Fail
+  name: mresourceexport.kb.io
+  rules:
+  - apiGroups:
+    - multicluster.crd.antrea.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - resourceexports
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: antrea-multicluster-webhook-service
+      namespace: antrea-system
+      path: /mutate-multicluster-crd-antrea-io-v1alpha1-resourceimport
+  failurePolicy: Fail
+  name: mresourceimport.kb.io
+  rules:
+  - apiGroups:
+    - multicluster.crd.antrea.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - resourceimports
+  sideEffects: None
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: antrea-system/antrea-multicluster-serving-cert
+  name: antrea-multicluster-validating-webhook-configuration
+webhooks:
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: antrea-multicluster-webhook-service
+      namespace: antrea-system
+      path: /validate-multicluster-crd-antrea-io-v1alpha1-clusterclaim
+  failurePolicy: Fail
+  name: vclusterclaim.kb.io
+  rules:
+  - apiGroups:
+    - multicluster.crd.antrea.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - clusterclaims
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: antrea-multicluster-webhook-service
+      namespace: antrea-system
+      path: /validate-multicluster-crd-antrea-io-v1alpha1-memberclusterannounce
+  failurePolicy: Fail
+  name: vmemberclusterannounce.kb.io
+  rules:
+  - apiGroups:
+    - multicluster.crd.antrea.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - memberclusterannounces
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: antrea-multicluster-webhook-service
+      namespace: antrea-system
+      path: /validate-multicluster-crd-antrea-io-v1alpha1-multiclusterset
+  failurePolicy: Fail
+  name: vmulticlusterset.kb.io
+  rules:
+  - apiGroups:
+    - multicluster.crd.antrea.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - multiclustersets
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: antrea-multicluster-webhook-service
+      namespace: antrea-system
+      path: /validate-multicluster-crd-antrea-io-v1alpha1-resourceexport
+  failurePolicy: Fail
+  name: vresourceexport.kb.io
+  rules:
+  - apiGroups:
+    - multicluster.crd.antrea.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - resourceexports
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: antrea-multicluster-webhook-service
+      namespace: antrea-system
+      path: /validate-multicluster-crd-antrea-io-v1alpha1-resourceimport
+  failurePolicy: Fail
+  name: vresourceimport.kb.io
+  rules:
+  - apiGroups:
+    - multicluster.crd.antrea.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - resourceimports
+  sideEffects: None
