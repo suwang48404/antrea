@@ -23,19 +23,68 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
+type ClusterStatus string
+
+const (
+	ClusterStatusReachable   ClusterStatus = "Reachable"
+	ClusterStatusUnreachable ClusterStatus = "Unreachable"
+)
+
+// MemberCluster defines member cluster information.
+type MemberCluster struct {
+	// Identify member cluster in multi-cluster set.
+	ClusterID string `json:"clusterID,omitempty"`
+	// API server of the member or the leader cluster.
+	Server string `json:"server,omitempty"`
+	// Secret name to access API server of the member from the leader cluster.
+	Secret string `json:"secret,omitempty"`
+	// ServiceAccount used by the member cluster to access into leader cluster.
+	ServiceAccount string `json:"serviceAccount,omitempty"`
+}
+
+// MemberClusterStatus defines member cluster status in the leader clusters.
+type MemberClusterStatus struct {
+	// ClusterID identifies member cluster in the set.
+	ClusterID string `json:"clusterID,omitempty"`
+	// IsLeader is true if the member cluster has selected this cluster as leader.
+	IsLeader bool `json:"isLeader,omitempty"`
+	// Status indicates connection status between leader and member cluster.
+	Status ClusterStatus `json:"status,omitempty"`
+	// Error reports of the member cluster.
+	Error string `json:"error,omitempty"`
+}
+
+// LeaderClusterStatus defines leader cluster status in the member clusters.
+type LeaderClusterStatus struct {
+	// ClusterID identifies leader cluster in the set.
+	ClusterID string `json:"clusterID,omitempty"`
+	// Status indicates connection status between leader and member cluster.
+	Status ClusterStatus `json:"status,omitempty"`
+	// Error reports of the leader cluster.
+	Error string `json:"error,omitempty"`
+}
+
 // MultiClusterSetSpec defines the desired state of MultiClusterSet
 type MultiClusterSetSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of MultiClusterSet. Edit multiclusterset_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	// Members include member clusters known to the leader clusters.
+	// Used in leader cluster.
+	Members []MemberCluster `json:"members,omitempty"`
+	// Leaders include leader clusters known to the member clusters.
+	Leaders []MemberCluster `json:"leaders,omitempty"`
+	// Namespace to connect to in leader clusters,.
+	// Used in member cluster.
+	Namespace string `json:"namespace,omitempty"`
 }
 
 // MultiClusterSetStatus defines the observed state of MultiClusterSet
 type MultiClusterSetStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+	MemberStatus []MemberClusterStatus `json:"memberStatus,omitempty"`
+	LeaderStatus []LeaderClusterStatus `json:"leaderStatus,omitempty"`
 }
 
 //+kubebuilder:object:root=true

@@ -28,14 +28,15 @@ type ResourceExportFilterSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of ResourceExportFilter. Edit ResourceExportFilter_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	// TBD.
 }
 
 // ResourceExportFilterStatus defines the observed state of ResourceExportFilter
 type ResourceExportFilterStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+
+	// TBD
 }
 
 //+kubebuilder:object:root=true

@@ -17,7 +17,10 @@ limitations under the License.
 package v1alpha1
 
 import (
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"antrea.io/antrea/pkg/apis/crd/v1alpha2"
 )
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
@@ -28,14 +31,34 @@ type ResourceExportSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of ResourceExport. Edit resourceexport_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	// ClusterID specifies the member cluster this resource exported from.
+	ClusterID string `json:"clusterID,omitempty"`
+	// Name of exported resource.
+	Name string `json:"name,omitempty"`
+	// Namespace of exported resource.
+	Namespace string `json:"namespace,omitempty"`
+	// Kind of exported resource.
+	Kind string `json:"kind,omitempty"`
+
+	// If exported resource is Service.
+	Service *v1.ServiceSpec `json:"service,omitempty"`
+	// If exported resource is EndPoints.
+	Endpoints []v1.EndpointSubset `json:"endpoints,omitempty"`
+	// If exported resource is ExternalEntity.
+	ExternalEntity *v1alpha2.ExternalEntitySpec `json:"externalentity,omitempty"`
+	// If exported resource is Node (IPs)
+	Node v1.NodeStatus `json:"node,omitempty"`
+	// If exported resource Kind is unknown.
+	Raw []byte `json:"raw,omitempty"`
 }
 
 // ResourceExportStatus defines the observed state of ResourceExport
 type ResourceExportStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+
+	// Error states the reason if ResourceExport is rejected.
+	Error string `json:"error,omitempty"`
 }
 
 //+kubebuilder:object:root=true

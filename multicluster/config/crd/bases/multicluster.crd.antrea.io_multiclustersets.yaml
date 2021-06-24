@@ -36,13 +36,98 @@ spec:
           spec:
             description: MultiClusterSetSpec defines the desired state of MultiClusterSet
             properties:
-              foo:
-                description: Foo is an example field of MultiClusterSet. Edit multiclusterset_types.go
-                  to remove/update
+              leaders:
+                description: Leaders include leader clusters known to the member clusters.
+                items:
+                  description: MemberCluster defines member cluster information.
+                  properties:
+                    clusterID:
+                      description: Identify member cluster in multi-cluster set.
+                      type: string
+                    secret:
+                      description: Secret name to access API server of the member
+                        from the leader cluster.
+                      type: string
+                    server:
+                      description: API server of the member or the leader cluster.
+                      type: string
+                    serviceAccount:
+                      description: ServiceAccount used by the member cluster to access
+                        into leader cluster.
+                      type: string
+                  type: object
+                type: array
+              members:
+                description: Members include member clusters known to the leader clusters.
+                  Used in leader cluster.
+                items:
+                  description: MemberCluster defines member cluster information.
+                  properties:
+                    clusterID:
+                      description: Identify member cluster in multi-cluster set.
+                      type: string
+                    secret:
+                      description: Secret name to access API server of the member
+                        from the leader cluster.
+                      type: string
+                    server:
+                      description: API server of the member or the leader cluster.
+                      type: string
+                    serviceAccount:
+                      description: ServiceAccount used by the member cluster to access
+                        into leader cluster.
+                      type: string
+                  type: object
+                type: array
+              namespace:
+                description: Namespace to connect to in leader clusters,. Used in
+                  member cluster.
                 type: string
             type: object
           status:
             description: MultiClusterSetStatus defines the observed state of MultiClusterSet
+            properties:
+              leaderStatus:
+                items:
+                  description: LeaderClusterStatus defines leader cluster status in
+                    the member clusters.
+                  properties:
+                    clusterID:
+                      description: ClusterID identifies leader cluster in the set.
+                      type: string
+                    error:
+                      description: Error reports of the leader cluster.
+                      type: string
+                    status:
+                      description: Status indicates connection status between leader
+                        and member cluster.
+                      type: string
+                  type: object
+                type: array
+              memberStatus:
+                description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
+                  of cluster Important: Run "make" to regenerate code after modifying
+                  this file'
+                items:
+                  description: MemberClusterStatus defines member cluster status in
+                    the leader clusters.
+                  properties:
+                    clusterID:
+                      description: ClusterID identifies member cluster in the set.
+                      type: string
+                    error:
+                      description: Error reports of the member cluster.
+                      type: string
+                    isLeader:
+                      description: IsLeader is true if the member cluster has selected
+                        this cluster as leader.
+                      type: boolean
+                    status:
+                      description: Status indicates connection status between leader
+                        and member cluster.
+                      type: string
+                  type: object
+                type: array
             type: object
         type: object
     served: true

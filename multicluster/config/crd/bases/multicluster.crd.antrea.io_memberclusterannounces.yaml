@@ -27,30 +27,25 @@ spec:
               of an object. Servers should convert recognized schemas to the latest
               internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
             type: string
+          clusterID:
+            description: ClusterID of the member cluster.
+            type: string
+          clusterSetID:
+            description: Multi-cluster set this member belongs to.
+            type: string
           kind:
             description: 'Kind is a string value representing the REST resource this
               object represents. Servers may infer this from the endpoint the client
               submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
             type: string
+          leaderClusterID:
+            description: Lead cluster this member has selected.
+            type: string
           metadata:
-            type: object
-          spec:
-            description: MemberClusterAnnounceSpec defines the desired state of MemberClusterAnnounce
-            properties:
-              foo:
-                description: Foo is an example field of MemberClusterAnnounce. Edit
-                  memberclusterannounce_types.go to remove/update
-                type: string
-            type: object
-          status:
-            description: MemberClusterAnnounceStatus defines the observed state of
-              MemberClusterAnnounce
             type: object
         type: object
     served: true
     storage: true
-    subresources:
-      status: {}
 status:
   acceptedNames:
     kind: ""

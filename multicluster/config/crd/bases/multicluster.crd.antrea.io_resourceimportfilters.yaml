@@ -36,11 +36,6 @@ spec:
             type: object
           spec:
             description: ResourceImportFilterSpec defines the desired state of ResourceImportFilter
-            properties:
-              foo:
-                description: Foo is an example field of ResourceImportFilter. Edit
-                  ResourceImportFilter_types.go to remove/update
-                type: string
             type: object
           status:
             description: ResourceImportFilterStatus defines the observed state of

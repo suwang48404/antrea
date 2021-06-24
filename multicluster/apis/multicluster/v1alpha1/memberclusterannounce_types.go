@@ -23,31 +23,19 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-// MemberClusterAnnounceSpec defines the desired state of MemberClusterAnnounce
-type MemberClusterAnnounceSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-
-	// Foo is an example field of MemberClusterAnnounce. Edit memberclusterannounce_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
-}
-
-// MemberClusterAnnounceStatus defines the observed state of MemberClusterAnnounce
-type MemberClusterAnnounceStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-}
-
 //+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
 
 // MemberClusterAnnounce is the Schema for the memberclusterannounces API
 type MemberClusterAnnounce struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   MemberClusterAnnounceSpec   `json:"spec,omitempty"`
-	Status MemberClusterAnnounceStatus `json:"status,omitempty"`
+	// ClusterID of the member cluster.
+	ClusterID string `json:"clusterID,omitempty"`
+	// Multi-cluster set this member belongs to.
+	ClusterSetID string `json:"clusterSetID,omitempty"`
+	// Lead cluster this member has selected.
+	LeaderClusterID string `json:"leaderClusterID,omitempty"`
 }
 
 //+kubebuilder:object:root=true

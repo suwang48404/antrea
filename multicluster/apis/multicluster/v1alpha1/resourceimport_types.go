@@ -17,7 +17,11 @@ limitations under the License.
 package v1alpha1
 
 import (
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"antrea.io/antrea/pkg/apis/crd/v1alpha2"
+	mcs "sigs.k8s.io/mcs-api/pkg/apis/v1alpha1"
 )
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
@@ -28,14 +32,50 @@ type ResourceImportSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of ResourceImport. Edit resourceimport_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	// ClusterID specifies the member cluster this resource to import to.
+	// When not specified, import to all member clusters.
+	ClusterID string `json:"clusterID,omitempty"`
+	// Name of imported resource.
+	Name string `json:"name,omitempty"`
+	// Namespace of imported resource.
+	Namespace string `json:"namespace,omitempty"`
+	// Kind of imported resource.
+	Kind string `json:"kind,omitempty"`
+
+	// If imported resource is ServiceImport.
+	ServiceImport mcs.ServiceImport `json:"serviceImport,omitempty"`
+	// If imported resource is EndPoints.
+	Endpoints []v1.EndpointSubset `json:"endpoints,omitempty"`
+	// If imported resource is ExternalEntity.
+	ExternalEntity *v1alpha2.ExternalEntitySpec `json:"externalentity,omitempty"`
+	// If imported resource is Node (IPs)
+	Node v1.NodeStatus `json:"node,omitempty"`
+	// If imported resource is ANP.
+	// TODO:
+	// ANP uses float64 as priority.  Type float64 is discouraged by k8s, and is not supported by controller-gen tools.
+	// NetworkPolicy *v1alpha1.NetworkPolicySpec `json:"networkpolicy,omitempty"`
+	// If imported resource Kind is unknown.
+	Raw []byte `json:"raw,omitempty"`
+}
+
+// MemberClusterImportStatus defines ResourceImport status from one member cluster.
+type MemberClusterImportStatus struct {
+	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
+	// Important: Run "make" to regenerate code after modifying this file
+
+	// ClusterID is the member cluster ID.
+	ClusterID string `json:"clusterID,omitempty"`
+	// Error states the reason if import failed.
+	Error string `json:"error,omitempty"`
 }
 
 // ResourceImportStatus defines the observed state of ResourceImport
 type ResourceImportStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+
+	// MemberClusterImportStatus reports resource import status of member clusters.
+	MemberClusterImportStatus []MemberClusterImportStatus `json:"memberClusterImportStatus,omitempty"`
 }
 
 //+kubebuilder:object:root=true

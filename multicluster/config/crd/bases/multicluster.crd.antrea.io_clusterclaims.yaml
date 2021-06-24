@@ -33,22 +33,15 @@ spec:
             type: string
           metadata:
             type: object
-          spec:
-            description: ClusterClaimSpec defines the desired state of ClusterClaim
-            properties:
-              foo:
-                description: Foo is an example field of ClusterClaim. Edit clusterclaim_types.go
-                  to remove/update
-                type: string
-            type: object
-          status:
-            description: ClusterClaimStatus defines the observed state of ClusterClaim
-            type: object
+          name:
+            description: Name of the ClusterClaim.
+            type: string
+          value:
+            description: Value of the ClusterClaim.
+            type: string
         type: object
     served: true
     storage: true
-    subresources:
-      status: {}
 status:
   acceptedNames:
     kind: ""

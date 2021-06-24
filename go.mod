@@ -68,6 +68,7 @@ require (
 	k8s.io/kubelet v0.21.0
 	k8s.io/utils v0.0.0-20210527160623-6fdb442a123b
 	sigs.k8s.io/controller-runtime v0.9.1
+	sigs.k8s.io/mcs-api v0.1.0
 )
 
 replace (

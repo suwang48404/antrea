@@ -23,31 +23,26 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-// ClusterClaimSpec defines the desired state of ClusterClaim
-type ClusterClaimSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-
-	// Foo is an example field of ClusterClaim. Edit clusterclaim_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
-}
-
-// ClusterClaimStatus defines the observed state of ClusterClaim
-type ClusterClaimStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-}
+const (
+	// Identify this cluster.
+	WellKnownClusterClaimID = "id.k8s.io"
+	// Identify a clusterSet that this cluster is member of.
+	WellKnownClusterClaimClusterSet = "clusterSet.k8s.io"
+)
 
 //+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
 
 // ClusterClaim is the Schema for the clusterclaims API
 type ClusterClaim struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
+	// INSERT ADDITIONAL FIELDS - desired state of cluster
+	// Important: Run "make" to regenerate code after modifying this file
 
-	Spec   ClusterClaimSpec   `json:"spec,omitempty"`
-	Status ClusterClaimStatus `json:"status,omitempty"`
+	// Name of the ClusterClaim.
+	Name string `json:"name,omitempty"`
+	// Value of the ClusterClaim.
+	Value string `json:"value,omitempty"`
 }
 
 //+kubebuilder:object:root=true
